@@ -8,11 +8,11 @@ Copyright 1990-2024 Rob Probin
 
 A long time ago, I wrote a simple text based RPG in GFA BASIC for the Atari ST called Caves of Chaos. This was a quick hack and the code is terrible. But it was fun to play, if a big tricky to beat sometimes if you don't plan ahead. 
 
-Sometime after that a friend called Ian was talking to me about writing games, and so I spent a bit of time porting it to (K&R-style) C.
+Sometime after that, a friend (called Ian) was talking to me about writing games, and so I spent a bit of time porting it to (K&R-style) C.
 
 A sometime time after that I ported it to the Mac. 
 
-Then I ported to Lua it as an Easter Egg in an uncompleted game called Forlorn Fox.
+Then I ported it to Lua as an Easter Egg, in an uncompleted game called Forlorn Fox.
 
 Then more recently I tried to get the C version to compile on a more modern compiler. I needed to change the function signatures to get it to compile. 
 
@@ -56,7 +56,7 @@ Usually my code is under permissive licenses like the MIT license or Zlib-style 
 
 ### Notes on the name
 
-I've recently become aware of a table-top RPG module that contains a dungeon with a similar name. However, these bear no relationship to this game. I don't think I'd played this specific module *before* writing this game, so this is likely simply a co-incidence. It's a pretty generic name and the words 'Chaos' and 'Caves' popular in the late 70' and early 80's - with Chaos Theory and dungeon crawlers like colossal cave.
+I've recently become aware of a table-top RPG module that contains a dungeon with a similar name. However, these bear no relationship to this game. I don't think I'd played this specific module *before* writing this game, so this is likely simply a co-incidence. It's a pretty generic name and the words 'Chaos' and 'Caves' popular in the late 70' and early 80's - with Chaos Theory and dungeon crawlers like Colossal Cave.
 
 I'd like to have a written a game called 'Pyramids of Mars' - there was printed magazine type-in game of that name, but I think the author might have got the name (accidentially or otherwise) from the Doctor Who series in 1975.
 
