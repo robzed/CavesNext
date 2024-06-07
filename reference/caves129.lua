@@ -116,7 +116,7 @@ repeat
           hp=10,			-- players hit points
           gold=0,			-- players Gold
           multi=0,		-- Multiple fight off
-          hit_strength = 1;
+          hit_strength = 1;         -- Rob 3 June 2024 - Bug compared with C version?
           -- End of Data Setup
       }
 
