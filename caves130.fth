@@ -236,7 +236,7 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
                ," Troll" ," Giant Snake" ," Wolf" ," Bat" ," Destroyer" 
                ," Zombie" ," Hill Giant" ," Werewolf" ," Ogre" ," Goblin"
                \ end of list
-               , ""
+               ," "
 
 \ gforth pads space chars until align wiht uint64_t
 \ vforth pads 0 terminator ;
@@ -276,8 +276,6 @@ create mondata
 
 7  constant mdatasz
 
-0 [IF]
-
 
 \
 \ End of room data with monsters inside
@@ -300,6 +298,7 @@ variable multi  \ Multiple fight off
 variable hit_strength \ players hit strength
 variable mon_hit_strength \ monster hit strength
 
+
 \
 \ These fetch/store the current monster's data 
 \
@@ -320,6 +319,7 @@ variable mon_hit_strength \ monster hit strength
     x y mGold!
 ;
 
+
 \
 \ These fetch/store the players spells
 \
@@ -329,6 +329,7 @@ variable mon_hit_strength \ monster hit strength
 : spell! ( value n -- )
     1- spells + c!
 ;
+
 
 
 \
@@ -373,6 +374,7 @@ variable mon_hit_strength \ monster hit strength
     ." Here is a monster with " mons.hp . ." hit points called a " .mons.name cr
 ;
 
+
 : YN_char ( c -- c flag )
     dup [CHAR] Y = 
     over [CHAR] N = or
@@ -384,6 +386,7 @@ variable mon_hit_strength \ monster hit strength
 2 constant G_stop
 3 constant G_reread_room
 4 constant G_same_room
+
 
 \
 \      - Player Death text -
@@ -418,7 +421,7 @@ variable mon_hit_strength \ monster hit strength
 \ 
 
 : mondeath ( -- ) 
-  ." The " mons.name ." is Dead" cr
+  ." The " .mons.name ." is Dead" cr
   ." You find " mons.gold ." Gold" cr cr
 
   gold @ mons.gold + gold !
@@ -430,6 +433,7 @@ variable mon_hit_strength \ monster hit strength
     dup [CHAR] 0 >= 
     over [CHAR] 9 <= or
 ;
+
 
 \ Allows input of a number
 : innum ( -- n )
@@ -455,13 +459,11 @@ variable mon_hit_strength \ monster hit strength
     over [CHAR] H = or
 ;
 
+
 \ 
 \         - Heal Routine -
 \ 
 : heal ( -- )
-
-    local a;
-    local num;
 
     ." Do you wish to Heal(Type H) or continue(Type C)" cr cr
     ." ? "
@@ -531,6 +533,7 @@ variable mon_hit_strength \ monster hit strength
     0
 ;
 
+
 \ 
 \       Player move around
 \ 
@@ -542,7 +545,7 @@ variable mon_hit_strength \ monster hit strength
     x @ width_x <> if ." East (Type E) or " then
     y @ height_y <> if ." South (Type S) or " then
     y @ 1 <> if ." North (Type N)" then
-    cr ."or Wait (Type Q)"
+    cr ." or Wait (Type Q)"
 
     level 3 > if 
         ."  or Check the number of Monsters (Type M)." cr 
@@ -610,7 +613,7 @@ variable mon_hit_strength \ monster hit strength
 
     cr cr
     \ player moved, re-read room
-end
+;
 
 
 
@@ -680,7 +683,7 @@ end
         4 spell@ 1- 4 spell!
     then
     dup 5 = if
-        hit_strength @ 1+ hit_strength!
+        hit_strength @ 1+ hit_strength !
         cr ." You cast Gain Strength" cr
         5 spell@ 1- 5 spell!
     then
@@ -694,28 +697,28 @@ end
     dup x y mSPELL1-
 
     dup 1 = if
-      cr ." The " .mons.name ." casts an Ice dart" cr
+      cr ." The " .mons.name ."  casts an Ice dart" cr
       hp @ 1- hp !
     then
     dup 2 = if 
-      cr ." The " .mons.name ." casts a Fireball" cr
+      cr ." The " .mons.name ."  casts a Fireball" cr
       hp @ 10 - hp !
     then
     dup 3 = if
-      cr ." The " .mons.name ." casts Regenerate" cr
+      cr ." The " .mons.name ."  casts Regenerate" cr
       mons.hp 10 + mons.hp!
     then
     dup 4 = if
-      cr ." The " .mons.name ." casts Drain level" cr
+      cr ." The " .mons.name ."  casts Drain level" cr
       hp @ 10 - hp !
       level @ 1 - level !
     then
     dup 5 = if
-      cr ." The " .mons.name ." casts Gain Strength" cr
+      cr ." The " .mons.name ."  casts Gain Strength" cr
       mon_hit_strength @ 1+ mon_hit_strength !
     then
     dup 6 = if          \ bug fix 10-Nov-2003 by Rob, spotted by Stu :-(
-      cr ." The %s casts MEGA DEATH" cr ,.mons.name);
+      cr ." The " .mons.name ."  casts MEGA DEATH" cr 
       ." Oh S**t!!!" cr
       hp @ 50 - hp !
     then
@@ -766,7 +769,7 @@ end
     gold @ 2000 + gold !
     true_level @ 1+ true_level !
     cr cr ." You completed the game with " gold @  . ." gold pieces." cr
-    ." You have your levels restored and are at the ultimate level, " player.true_level @ . ." ."
+    ." You have your levels restored and are at the ultimate level, " true_level @ . ." ."
     cr ." You had " hp ." hps at the end." cr cr
     ." CONGRATULATIONS!!!!  (Tell Rob!!!)" cr cr
 
@@ -867,7 +870,7 @@ end
     else		
         \ monster in this room is still alive
         do_monster_alive
-    end
+    then
 ;
 
 : do_room ( -- game-state )
@@ -940,8 +943,6 @@ end
     0 multi !		 \ Multiple fight off
     1 hit_strength ! \ players hit strength
 
-    \ technically don't need to set this up as it's done in pdeath
-    continue state !
 ;
 
 \ 
@@ -964,6 +965,5 @@ end
 
 
 \ run the game!
-caves_main
+\ caves_main
 
-[THEN]
