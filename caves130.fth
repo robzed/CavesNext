@@ -324,10 +324,10 @@ variable mon_hit_strength \ monster hit strength
 \ These fetch/store the players spells
 \
 : spell@ ( n -- )
-    1- spells + @
+    1- spells + c@
 ;
-: spell! ( n -- )
-    1- spells + !
+: spell! ( value n -- )
+    1- spells + c!
 ;
 
 
