@@ -195,6 +195,8 @@ create source_map_data
 \   - Map set up routine -
 \
 
+255 constant NOT_LOADED
+
 \ set up all the monsters in the rooms    
 : setmap ( -- )
         
@@ -221,14 +223,15 @@ create source_map_data
             j i get_room_addr c!
 
 \           \  -1 for first time player has been in room
-            -1 j i get_room_addr 1+ !
+            NOT_LOADED j i get_room_addr 1+ !
 
             \ next room
             1+
         loop
     loop
-
+    drop
 ;
+
 
 \ - Monster data -
 create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
@@ -693,7 +696,7 @@ variable mon_hit_strength \ monster hit strength
 
 \ - Monster cast -
 : moncast ( -- )
-    6 x_rand 1+ ( spell_1_to_6 )
+    #mon_spells x_rand 1+ ( spell_1_to_6 )
     dup x y mSPELL@ 0= if drop exit then
     dup x y mSPELL1-
 
