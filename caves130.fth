@@ -341,7 +341,7 @@ variable mon_hit_strength \ monster hit strength
 
     x y mons@       \ get the monster in this room
     mdatasz * mondata +
-    local mdata = mondata[n]
+
     \ quick sanity check hit point is not zero or negative
     dup c@ 0 <= if
         ." ERROR 3 - monster data broken" cr
