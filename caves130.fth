@@ -262,6 +262,44 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
     loop
 ;
 
+
+\ debug command to show the room data
+\ should be called sometime after setup
+: .room ( x y -- )
+    2dup mons@ .
+    2dup mons@ get_monster_name type
+    2dup mons_HP@ NOT_LOADED <> if
+        ."  hp="
+        2dup mons_HP@ .
+        2dup mGold@ .
+        ." g {"
+        2dup 1 rot mSPELL@ .
+        2dup 2 rot mSPELL@ .
+        2dup 3 rot mSPELL@ .
+        2dup 4 rot mSPELL@ .
+        2dup 5 rot mSPELL@ .
+        2dup 6 rot mSPELL@ .
+        ." }"
+    else
+        ."  (not loaded)"
+    then
+
+    2drop
+;
+
+\ debug command to show the map
+\ should be called sometime after setmap
+: .map
+    cr
+    height_y 0 do
+        width_x 0 do
+            ." (" i . ." ," j . ." ) = "
+            i j .room cr
+        loop
+    loop
+;
+
+
 \ hit point and 6 spells for each monster.
 create mondata 
            1 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c,    2 c,  2 c, 0 c, 0 c, 0 c, 0 c, 0 c,
@@ -335,6 +373,27 @@ variable mon_hit_strength \ monster hit strength
 ;
 
 
+\ debug command to show player data
+: .player
+    cr
+    ." spells{"
+    #pspells 0 do
+        spells I + c@ .
+    loop
+    ." } " cr
+    ." m@l=" mcount @ .
+    ." (" x @ . ." ," y @ . ." ) "
+    ." old(" oldx @ . ." ," oldy @ . ." )" cr
+    ." lvl=" level @ . 
+    ." true=" true_level @ . 
+    ." #mon=" mcount @ . cr
+    ." hp=" hp @ . 
+    gold @ . ." g" cr
+    ." multi=" multi @ . 
+    ." hitstr" hit_strength @ . ." mhs" mon_hit_strength @ .
+;
+
+
 
 \
 \ Get room and monster data for this room -
@@ -366,6 +425,17 @@ variable mon_hit_strength \ monster hit strength
         drop
     then
 ;		\ end of goroom()
+
+
+\ Notice: destroys x and y for player - only for debug
+: DEBUG_ld_rooms ( -- )
+    height_y 0 do
+        width_x 0 do
+            i x ! j y !
+            goroom
+        loop
+    loop
+;
 
 
 \ 
