@@ -403,17 +403,15 @@ variable mon_hit_strength \ monster hit strength
 
 : goroom ( -- )
 
-    x y mons@       \ get the monster in this room
-    mdatasz * mondata +
+    mons.hp NOT_LOADED = if	     \ if first time player been in this room
+        x y mons@       \ get the monster in this room
+        mdatasz * mondata +
 
-    \ quick sanity check hit point is not zero or negative
-    dup c@ 0 <= if
-        ." ERROR 3 - monster data broken" cr
-    then
-
-    ( monster_number -- )
+        \ quick sanity check hit point is not zero or negative
+        dup c@ 0 <= if
+            ." ERROR 3 - monster data broken" cr
+        then
     
-    mons.hp -1 = if	             \ if first time player been in this room
         dup c@ mons.hp!          \ hit points from monster list
         dup c@ mons.gold!        \ store original hit points in gold as well
         1+ dup c@ 1 x y mSPELL!  \ get monster spells and put in store
