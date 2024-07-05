@@ -169,7 +169,8 @@ create map width_x height_y * sizeof_MapRec * allot
     ." Mac OS X version 13th August 2001." cr
     ." Lua version 27th Feb 2019." cr
     ." C99 port - 4 May 2024." cr
-    ." vForth Next version 5 May 2024." cr cr
+    ." gForth version May to July 2024." cr
+    ." vForth Next version August 2024." cr cr
     ." Now the game.....       (v1.30)" cr
 ;
 
