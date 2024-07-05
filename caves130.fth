@@ -905,10 +905,10 @@ end
 
         \ ********* Re-read room data **************
 
-        goroom    	\ generate monster in room
-
         1 hit_strength ! \ players hit strength
         1 mon_hit_strength ! \ monster hit strength
+
+        goroom    	\ generate monster in room
 
         do_room
 
