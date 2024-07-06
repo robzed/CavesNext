@@ -43,7 +43,7 @@ Reading the source code is also a minor spoiler. For instance fight mechanics an
 map is in there - which normally is discovered as part of the game - but reading
 the source code isn't as helpful as you might think - so resist the urge. 
 
-Conversely you definately don't need to read the code to win; avoid it if possible.
+Conversely you definitely don't need to read the code to win; avoid it if possible.
 
 ## Code History
 
@@ -79,7 +79,7 @@ It was incrementally, interactively, tested as is the way with Forth.
 
 ### Compiling the C version
 
-At some point I'll add a comment on how to do it on differnt platforms. But since it's a single file using standard C, I think you should be able to compile this on any standard C machine.
+At some point I'll add a comment on how to do it on different platforms. But since it's a single file using standard C, I think you should be able to compile this on any standard C machine.
 
 ### Running the Lua version
 
