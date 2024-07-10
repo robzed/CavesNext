@@ -326,14 +326,14 @@ create mondata
 \ most of these are player or general game data
 5 constant #pspells
 create spells ( player_spells ) #pspells allot
-variable mcount  \ number of monster killed this level
-variable x      \ players X position
-variable y      \ players Y position
-variable oldx     \ players old X
-variable oldy     \ players old Y - where to run to
-variable level  \ players level that can be drained
+variable m/lvl   \ number of monster killed this level
+variable x       \ players X position
+variable y       \ players Y position
+variable oldx    \ players old X
+variable oldy    \ players old Y - where to run to
+variable level   \ players level that can be drained
 variable true_level \ players True Level
-variable mcount     \ current number of monsters
+variable #mons       \ current number of monsters
 variable hp     \ players hit points
 variable gold   \ players Gold
 variable multi  \ Multiple fight off
@@ -345,20 +345,20 @@ variable mon_hit_strength \ monster hit strength
 \ These fetch/store the current monster's data 
 \
 : .mons.name ( -- )
-    x y mons@ get_monster_name type
+    x @ y @ mons@ get_monster_name type
 ;
 : mons.hp ( -- n )
-    x y mons_HP@
+    x @ y @ mons_HP@
 ;
 : mons.hp! ( n -- )
-    x y mons_HP!
+    x @ y @ mons_HP!
 ;
 
 : mons.gold ( -- n )
-    x y mGold@
+    x @ y @ mGold@
 ;
 : mons.gold! ( n -- )
-    x y mGold!
+    x @ y @ mGold!
 ;
 
 
@@ -381,12 +381,12 @@ variable mon_hit_strength \ monster hit strength
         spells I + c@ .
     loop
     ." } " cr
-    ." m@l=" mcount @ .
+    ." m@l=" m/lvl @ .
     ." (" x @ . ." ," y @ . ." ) "
     ." old(" oldx @ . ." ," oldy @ . ." )" cr
     ." lvl=" level @ . 
     ." true=" true_level @ . 
-    ." #mon=" mcount @ . cr
+    ." #mons=" #mons @ . cr
     ." hp=" hp @ . 
     gold @ . ." g" cr
     ." multi=" multi @ . 
@@ -404,22 +404,23 @@ variable mon_hit_strength \ monster hit strength
 : goroom ( -- )
 
     mons.hp NOT_LOADED = if	     \ if first time player been in this room
-        x y mons@       \ get the monster in this room
+        x @ y @ mons@       \ get the monster in this room
         mdatasz * mondata +
 
-        \ quick sanity check hit point is not zero or negative
-        dup c@ 0 <= if
+        \ quick sanity check hit point is not zero
+        dup c@ 0 = if
             ." ERROR 3 - monster data broken" cr
+            bye
         then
     
         dup c@ mons.hp!          \ hit points from monster list
         dup c@ mons.gold!        \ store original hit points in gold as well
-        1+ dup c@ 1 x y mSPELL!  \ get monster spells and put in store
-        1+ dup c@ 2 x y mSPELL!
-        1+ dup c@ 3 x y mSPELL!
-        1+ dup c@ 4 x y mSPELL!
-        1+ dup c@ 5 x y mSPELL!
-        1+ dup c@ 6 x y mSPELL!
+        1+ dup c@ 1 x @ y @ mSPELL!  \ get monster spells and put in store
+        1+ dup c@ 2 x @ y @ mSPELL!
+        1+ dup c@ 3 x @ y @ mSPELL!
+        1+ dup c@ 4 x @ y @ mSPELL!
+        1+ dup c@ 5 x @ y @ mSPELL!
+        1+ dup c@ 6 x @ y @ mSPELL!
         drop
     then
 ;		\ end of goroom()
@@ -441,8 +442,8 @@ variable mon_hit_strength \ monster hit strength
 \ 
 : rmintro ( -- )
     cr
-    ." You have " hp . ." hit points and " gold . ." gold" cr
-    multi @ 0= if ." You are Level " level . cr then
+    ." You have " hp @ . ." hit points and " gold @ . ." gold" cr
+    multi @ 0= if ." You are Level " level @ . cr then
     ." Here is a monster with " mons.hp . ." hit points called a " .mons.name cr
 ;
 
@@ -466,7 +467,7 @@ variable mon_hit_strength \ monster hit strength
 \ Returns status: 0=continue 1=goto start 2=stop
 : pdeath? ( -- game-state )
 
-    hp 1 < level 0= or if
+    hp @ 1 < level @ 0= or if
       
         ." You have died" cr
         ." You had " gold . ." gold when you died" cr
@@ -580,7 +581,7 @@ variable mon_hit_strength \ monster hit strength
 \         - New level -
 \ 
 : newlvl ( -- )
-    mcount @ 10 = if
+    m/lvl @ 10 = if
         cr ." You Gain a level!!!" cr
         cr ."           YOU COCKY BLEEDER" cr 	\ Pauls sentence!!
         ." You gain 10 hp" cr
@@ -591,7 +592,7 @@ variable mon_hit_strength \ monster hit strength
         level @ 1+ level !
         true_level @ 1+ true_level !
         hp @ 10 + hp !
-        0 mcount !
+        0 m/lvl !
     then
 ;
 
@@ -619,7 +620,7 @@ variable mon_hit_strength \ monster hit strength
     y @ 1 <> if ." North (Type N)" then
     cr ." or Wait (Type Q)"
 
-    level 3 > if 
+    level @ 3 > if 
         ."  or Check the number of Monsters (Type M)." cr 
     else
         cr
@@ -678,9 +679,9 @@ variable mon_hit_strength \ monster hit strength
         ." You stay where you are"
     then
 
-    dup [char] M = level 3 > and if
+    dup [char] M = level @ 3 > and if
         cr cr
-        ." There are " mcount @ . ." monsters"
+        ." There are " #mons @ . ." monsters"
     then
 
     cr cr
@@ -765,8 +766,8 @@ variable mon_hit_strength \ monster hit strength
 \ - Monster cast -
 : moncast ( -- )
     #mon_spells x_rand 1+ ( spell_1_to_6 )
-    dup x y mSPELL@ 0= if drop exit then
-    dup x y mSPELL1-
+    dup x @ y @ mSPELL@ 0= if drop exit then
+    dup x @ y @ mSPELL1-
 
     dup 1 = if
       cr ." The " .mons.name ."  casts an Ice dart" cr
@@ -818,8 +819,8 @@ variable mon_hit_strength \ monster hit strength
 
     mons.hp 1 < if
       
-      mcount @ 1- mcount !
-      mcount @ 1+ mcount !
+      #mons @ 1- #mons !
+      m/lvl @ 1+ m/lvl !
       0 mons.hp!
     then
 
@@ -842,7 +843,7 @@ variable mon_hit_strength \ monster hit strength
     true_level @ 1+ true_level !
     cr cr ." You completed the game with " gold @  . ." gold pieces." cr
     ." You have your levels restored and are at the ultimate level, " true_level @ . ." ."
-    cr ." You had " hp ." hps at the end." cr cr
+    cr ." You had " hp @ ." hps at the end." cr cr
     ." CONGRATULATIONS!!!!  (Tell Rob!!!)" cr cr
 
 
@@ -855,7 +856,7 @@ variable mon_hit_strength \ monster hit strength
 \
 : do_monster_dead ( -- game-state )
     \ Are there any monsters left ?
-    mcount 0= if
+    #mons 0= if
         \ If no monsters, player has completed game
         gend			\ completion message
         [char] 1 if G_goto_start		\ run again
@@ -1001,7 +1002,7 @@ variable mon_hit_strength \ monster hit strength
      2 spells 2 + c!
      1 spells 3 + c!
      3 spells 4 + c!        
-    0 mcount !        \ number of monsters killed this level starts at zero 
+    0 m/lvl !        \ number of monsters killed this level starts at zero 
 
     1 x !            \ players X position at start
     height_y y !	 \ players Y position at start
@@ -1009,7 +1010,7 @@ variable mon_hit_strength \ monster hit strength
     height_y oldy !	 \ players old Y - where to run to
     1 level !		 \ players level that can be drained
     1 true_level !   \ players True Level
-    100 mcount !		 \ current number of monsters
+    100 #mons !		 \ current number of monsters
     10 hp !		     \ players hit points
     0 gold !		 \ players Gold
     0 multi !		 \ Multiple fight off
