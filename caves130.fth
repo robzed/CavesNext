@@ -140,15 +140,27 @@ create map width_x height_y * sizeof_MapRec * allot
     get_room_addr 2 + c@
 ;
 
+
+\ get the address of the byte storing the spell
+: mSPELLaddr ( sp x y -- addr-of-spell )
+    get_room_addr 
+    \ check spell number in range first
+    over 1 < if ." mspell<1 " bye then
+    over 6 > if ." mspell>6 " bye then
+    + 2 +
+;
+
 \ sp = 1-6 ... notice: '2 +' is actually '3 + 1-'
 : mSPELL@ ( sp x y -- n )
-    get_room_addr swap + 2 + c@
+    mSPELLaddr c@
 ;
 : mSPELL! ( n sp x y -- )
-    get_room_addr swap + 2 + c!
+    mSPELLaddr c!
 ;
 : mSPELL1- ( sp x y -- )
-    mSPELL@ 1- mSPELL!
+        mSPELLaddr dup 
+        c@ 1- 
+        swap c!
 ;
 
 
