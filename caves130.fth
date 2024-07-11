@@ -119,9 +119,9 @@ variable x_seed
 \ in C code this was 'z' instead of map. But map is more descriptive here
 create map width_x height_y * sizeof_MapRec * allot
 
-\ fetch the 
+\ fetch the address of a room
 : get_room_addr ( x y -- addr )
-    width_x * + sizeof_MapRec * map +
+    1- width_x * 1- + sizeof_MapRec * map +
 ;
 
 : mons@ ( x y -- n )
@@ -339,8 +339,8 @@ create mondata
 5 constant #pspells
 create spells ( player_spells ) #pspells allot
 variable m/lvl   \ number of monster killed this level
-variable x       \ players X position
-variable y       \ players Y position
+variable x       \ players X position (1 to 10)
+variable y       \ players Y position (1 to 10)
 variable oldx    \ players old X
 variable oldy    \ players old Y - where to run to
 variable level   \ players level that can be drained
@@ -404,7 +404,8 @@ variable mon_hit_strength \ monster hit strength
     ." multi=" multi @ . 
     ." hitstr" hit_strength @ . ." mhs" mon_hit_strength @ .
 ;
-
+\ Example:
+\ game_data_setup .player
 
 
 \
@@ -441,8 +442,8 @@ variable mon_hit_strength \ monster hit strength
 
 \ Notice: destroys x and y for player - only for debug
 : DEBUG_ld_rooms ( -- )
-    height_y 0 do
-        width_x 0 do
+    height_y 1+ 1 do
+        width_x 1+ 1 do
             i x ! j y !
             goroom
         loop
