@@ -137,7 +137,7 @@ create map width_x height_y * sizeof_MapRec * allot
     get_room_addr 2 + c@
 ;
 : mGold! ( x y -- n )
-    get_room_addr 2 + c@
+    get_room_addr 2 + c!
 ;
 
 
@@ -285,12 +285,12 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
         2dup mons_HP@ .
         2dup mGold@ .
         ." g {"
-        2dup 1 rot mSPELL@ .
-        2dup 2 rot mSPELL@ .
-        2dup 3 rot mSPELL@ .
-        2dup 4 rot mSPELL@ .
-        2dup 5 rot mSPELL@ .
-        2dup 6 rot mSPELL@ .
+        2dup 1 -rot mSPELL@ .
+        2dup 2 -rot mSPELL@ .
+        2dup 3 -rot mSPELL@ .
+        2dup 4 -rot mSPELL@ .
+        2dup 5 -rot mSPELL@ .
+        2dup 6 -rot mSPELL@ .
         ." }"
     else
         ."  (not loaded)"
@@ -414,17 +414,18 @@ variable mon_hit_strength \ monster hit strength
 \ data is the player hasn't been into that room before.
 
 : goroom ( -- )
-
     mons.hp NOT_LOADED = if	     \ if first time player been in this room
         x @ y @ mons@       \ get the monster in this room
+        dup 0 < if
+            ." ERROR - monster not set" . cr
+            bye
+        then
         mdatasz * mondata +
-
         \ quick sanity check hit point is not zero
         dup c@ 0 = if
             ." ERROR 3 - monster data broken" cr
             bye
         then
-    
         dup c@ mons.hp!          \ hit points from monster list
         dup c@ mons.gold!        \ store original hit points in gold as well
         1+ dup c@ 1 x @ y @ mSPELL!  \ get monster spells and put in store
@@ -447,6 +448,8 @@ variable mon_hit_strength \ monster hit strength
         loop
     loop
 ;
+\ Example:
+\ setmap DEBUG_ld_rooms .map
 
 
 \ 
