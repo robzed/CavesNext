@@ -531,22 +531,27 @@ variable mon_hit_strength \ monster hit strength
 
 
 \ Allows input of a number
+\ @TODO: Add backspace character, and better editing?
 : innum ( -- n )
     
     \ first input has to be a number
     ['] num_char C-input
+    dup emit
 
     \ make it into a number
     [CHAR] 0 - 
 
     begin
-        key num_char
-    while
-        [CHAR] 0 - 
-        \ multiply the first digit by 10, then add the units
-        swap 10 * +
-    repeat
-    drop \ the terminator key
+        begin
+            key num_char
+        while
+            dup emit
+            [CHAR] 0 - 
+            \ multiply the first digit by 10, then add the units
+            swap 10 * +
+        repeat
+    \ only finished if this is return character
+    13 = until
 ;
 
 
