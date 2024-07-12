@@ -51,16 +51,16 @@
     repeat
 ;
 
-: oneof ( addr u c -- flag )
-    \ check if c is in the string
-    swap
-    ?do 
-        over over c@ = if
-            2drop true leave
-        then
-    loop
-    2drop
-;
+\ : oneof ( addr u c -- flag )
+\    \ check if c is in the string
+\    swap
+\    ?do 
+\        over over c@ = if
+\            2drop true leave
+\        then
+\    loop
+\    2drop
+\  ;
 
 
 \ Constrained input
