@@ -188,7 +188,10 @@ create map width_x height_y * sizeof_MapRec * allot
 
 
 \ - Room occupation by monsters - */
-
+\ Notice:
+\  * the monster numbers are 1-25, not 0-24 - we fix this in the code
+\  * inside each line is increasing x, and each line is increasing y
+\  * the player starts at x,y=(1,10) - which is the bottom left here.
 create source_map_data
             11 c, 11 c, 17 c, 12 c, 12 c,  9 c, 16 c, 22 c, 10 c, 20 c,
             14 c, 11 c, 11 c, 17 c, 12 c, 12 c,  9 c, 15 c, 22 c, 10 c,
@@ -216,9 +219,10 @@ create source_map_data
     source_map_data
 
     \ loop around all rooms
-    width_x 1+ 1 do
-        height_y 1+ 1 do
-            
+    height_y 1+ 1 do
+        width_x 1+ 1 do
+            \ i = x, j = y
+
             \ get the source map data
             dup c@
 
@@ -232,10 +236,10 @@ create source_map_data
             1-  
 
             \ now store monster number
-            j i get_room_addr c!
+            i j get_room_addr c!
 
-\           \  -1 for first time player has been in room
-            NOT_LOADED j i get_room_addr 1+ !
+\           \  -1 for monster hit points, mark player has not been in room
+            NOT_LOADED i j mons_HP!
 
             \ next room
             1+
