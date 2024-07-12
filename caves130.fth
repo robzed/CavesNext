@@ -636,13 +636,13 @@ variable mon_hit_strength \ monster hit strength
 ;
 
 : move_char ( c -- c flag )
-    dup [char] N = if -1 exit then 
-    dup [char] S = if -1 exit then 
-    dup [char] E = if -1 exit then 
-    dup [char] W = if -1 exit then 
-    dup [char] Q = if -1 exit then 
-    dup [char] M = if -1 exit then 
-    0
+    dup [char] N = if true exit then 
+    dup [char] S = if true exit then 
+    dup [char] E = if true exit then 
+    dup [char] W = if true exit then 
+    dup [char] Q = if true exit then 
+    dup [char] M = if true exit then 
+    drop false
 ;
 
 
