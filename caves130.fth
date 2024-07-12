@@ -216,8 +216,8 @@ create source_map_data
     source_map_data
 
     \ loop around all rooms
-    width_x 0 do
-        height_y 0 do
+    width_x 1+ 1 do
+        height_y 1+ 1 do
             
             \ get the source map data
             dup c@
@@ -303,8 +303,8 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
 \ should be called sometime after setmap
 : .map
     cr
-    height_y 0 do
-        width_x 0 do
+    height_y 1+ 1 do
+        width_x 1+ 1 do
             ." (" i . ." ," j . ." ) = "
             i j .room cr
         loop
