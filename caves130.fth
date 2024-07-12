@@ -642,7 +642,7 @@ variable mon_hit_strength \ monster hit strength
     dup [char] W = if true exit then 
     dup [char] Q = if true exit then 
     dup [char] M = if true exit then 
-    drop false
+    false
 ;
 
 
