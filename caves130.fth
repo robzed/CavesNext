@@ -560,6 +560,17 @@ variable mon_hit_strength \ monster hit strength
     over [CHAR] H = or
 ;
 
+\ in_range
+\ checks if value n is inside or equal to min and max
+\ returns true if it is
+\ false if it's outside the range
+\ it's undefined what happens if min > max
+: in_range ( n min max -- flag )
+    rot dup ( min max n n )
+    rot     ( min n n max )
+    <= -rot  ( flag min n )
+    <= and
+;
 
 \ 
 \         - Heal Routine -
@@ -571,7 +582,7 @@ variable mon_hit_strength \ monster hit strength
 
     ['] CH_char C-input
 
-    dup [CHAR] H if
+    [CHAR] H = if
     
         ." Heal" cr ." Healing: (10 gold = 1 hp)"
 
@@ -582,20 +593,20 @@ variable mon_hit_strength \ monster hit strength
 
             innum
 
-            dup 10 * gold > 
-            over 0 < or   if 
+            \ can't be greater than player gold, or less than 0
+            dup 10 *    \ make it into gold
+            0 gold @ in_range false = if 
                 cr 
                 ." Not Enough Money!!" cr
                 ." Type zero not to heal" cr
                 drop -1
             then
-        
-        dup 0 > 
+        dup 0 >=
         until
 
         gold @ over 10 * - gold !
 
-        hp @ swap - hp !
+        hp @ swap + hp !
 
     else ." Continue" CR then
 
