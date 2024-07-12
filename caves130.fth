@@ -65,7 +65,9 @@
 
 \ Constrained input
 : C-input ( compare-xt -- c )
+        0 \ dummy previous key
         begin
+            drop
             input upper
             over execute
         until
@@ -490,7 +492,7 @@ variable mon_hit_strength \ monster hit strength
     hp @ 1 < level @ 0= or if
       
         ." You have died" cr
-        ." You had " gold . ." gold when you died" cr
+        ." You had " gold @ . ." gold when you died" cr
         ." Press Y to play again, or type N to stop." cr
         ." ? "
 
@@ -514,8 +516,8 @@ variable mon_hit_strength \ monster hit strength
 \ 
 
 : mondeath ( -- ) 
-  ." The " .mons.name ." is Dead" cr
-  ." You find " mons.gold ." Gold" cr cr
+  ." The " .mons.name ."  is Dead" cr
+  ." You find " mons.gold . ." Gold" cr cr
 
   gold @ mons.gold + gold !
   0 mons.hp!
@@ -524,7 +526,7 @@ variable mon_hit_strength \ monster hit strength
 
 : num_char ( c -- c flag )
     dup [CHAR] 0 >= 
-    over [CHAR] 9 <= or
+    over [CHAR] 9 <= and
 ;
 
 
@@ -538,12 +540,13 @@ variable mon_hit_strength \ monster hit strength
     [CHAR] 0 - 
 
     begin
-        input num_char
+        key num_char
     while
         [CHAR] 0 - 
         \ multiply the first digit by 10, then add the units
         swap 10 * +
     repeat
+    drop \ the terminator key
 ;
 
 
