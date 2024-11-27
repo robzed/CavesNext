@@ -751,11 +751,11 @@ variable mon_hit_strength \ monster hit strength
 
 : do_cast ( -- )
     ."  Cast spell" cr cr
-    1 spell@ if ." Type 1 to cast an Ice Dart (" 1 spell@ ." left)" cr then
-    2 spell@ if ." Type 2 to cast a Fireball (" 2 spell@ ." left)" cr then
-    3 spell@ if ." Type 3 to cast Regenerate (" 3 spell@ ." left)" cr then
-    4 spell@ if ." Type 4 to cast Drain level (" 4 spell@ ." left)" cr then
-    5 spell@ if ." Type 5 to cast Gain Strength (" 5 spell@ ." left)" cr then
+    1 spell@ if ." Type 1 to cast an Ice Dart (" 1 spell@ . ." left)" cr then
+    2 spell@ if ." Type 2 to cast a Fireball (" 2 spell@ . ." left)" cr then
+    3 spell@ if ." Type 3 to cast Regenerate (" 3 spell@ . ." left)" cr then
+    4 spell@ if ." Type 4 to cast Drain level (" 4 spell@ . ." left)" cr then
+    5 spell@ if ." Type 5 to cast Gain Strength (" 5 spell@ . ." left)" cr then
     ." Type 6. to not cast a spell" cr
 
     begin
