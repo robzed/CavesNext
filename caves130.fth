@@ -51,6 +51,9 @@
     repeat
 ;
 
+: invert-flag ( f -- f' ) 
+    0= ;
+
 \ : oneof ( addr u c -- flag )
 \    \ check if c is in the string
 \    swap
@@ -748,6 +751,13 @@ variable mon_hit_strength \ monster hit strength
 
 
 \ - Cast option -
+: _valid_spell ( n -- flag )
+    dup 1 < if drop false exit then
+    dup 6 > if drop false exit then
+    dup 6 = if drop true exit then  \ this is no spell type
+    dup spell@ 0 = if drop false exit then
+    drop true
+;
 
 : do_cast ( -- )
     ."  Cast spell" cr cr
@@ -756,19 +766,15 @@ variable mon_hit_strength \ monster hit strength
     3 spell@ if ." Type 3 to cast Regenerate (" 3 spell@ . ." left)" cr then
     4 spell@ if ." Type 4 to cast Drain level (" 4 spell@ . ." left)" cr then
     5 spell@ if ." Type 5 to cast Gain Strength (" 5 spell@ . ." left)" cr then
-    ." Type 6. to not cast a spell" cr
+    ." Type 6 to not cast a spell" cr
 
     begin
         cr ." Which Magic Spell? "
         innum
-        dup 1 >= if
-            dup 6 = if leave then
-            dup 6 < if
-                dup spell@ 0 <> if leave then
-            then
-        then
+        dup _valid_spell invert-flag
+     while
         drop
-    again
+    repeat
 
 
     \ actual spell activation
@@ -1075,7 +1081,25 @@ variable mon_hit_strength \ monster hit strength
     repeat
 ;  \ end of main
 
+\ setup when testing functions
+: test
+    cr
+    ." --------- TEST SETUP ---------" cr
+    setmap
+    \ DEBUG_ld_rooms
+    \ .map
+    game_data_setup
+    .player 
+    rmintro
+    1 hit_strength !
+    1 mon_hit_strength !
+    goroom
+    \ .map   
+;
 
 \ run the game!
 \ caves_main
+: run
+    caves_main
+;
 
