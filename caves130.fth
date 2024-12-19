@@ -116,13 +116,20 @@ variable x_seed
 10 constant height_y
 10 constant width_x
 6 constant #mon_spells
+
+\ these are converted into cells to avoid underflow problem (c@ is uint8_t)
 2 constant hp_slots     \ first byte is actual HPs, second is original hit points for gold reward
 1 constant mons_id_slots
-#mon_spells hp_slots + mons_id_slots +
-    constant sizeof_MapRec
+
+mons_id_slots cells hp_slots cells + constant _spell_offset
+
+\ calculate how big record is
+_spell_offset #mon_spells + constant sizeof_MapRec
 
 \ in C code this was 'z' instead of map. But map is more descriptive here
 create map width_x height_y * sizeof_MapRec * allot
+
+\ we should have used some structure words rather than calculate it ourselves...
 
 \ fetch the address of a room
 : get_room_addr ( x y -- addr )
@@ -130,21 +137,23 @@ create map width_x height_y * sizeof_MapRec * allot
 ;
 
 : mons@ ( x y -- n )
-    get_room_addr c@
+    get_room_addr @
+;
+: mons! ( n x y -- )
+    get_room_addr !
 ;
 : mons_HP@ ( x y -- n )
-    get_room_addr 1+ c@
+    get_room_addr CELL+ @
 ;
 : mons_HP! ( n x y -- )
-    get_room_addr 1+ c!
+    get_room_addr CELL+ !
 ;
 : mGold@ ( x y -- n )
-    get_room_addr 2 + c@
+    get_room_addr 2 CELLS + @
 ;
 : mGold! ( x y -- n )
-    get_room_addr 2 + c!
+    get_room_addr 2 CELLS + !
 ;
-
 
 \ get the address of the byte storing the spell
 : mSPELLaddr ( sp x y -- addr-of-spell )
@@ -152,7 +161,8 @@ create map width_x height_y * sizeof_MapRec * allot
     \ check spell number in range first
     over 1 < if ." mspell<1 " bye then
     over 6 > if ." mspell>6 " bye then
-    + 2 +
+    1- +
+    _spell_offset +
 ;
 
 \ sp = 1-6 ... notice: '2 +' is actually '3 + 1-'
@@ -241,7 +251,7 @@ create source_map_data
             1-  
 
             \ now store monster number
-            i j get_room_addr c!
+            i j mons!
 
 \           \  -1 for monster hit points, mark player has not been in room
             NOT_LOADED i j mons_HP!
