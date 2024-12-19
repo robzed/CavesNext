@@ -37,7 +37,6 @@
 \ Comment out for vForth
 : upper ( c1 -- c2 ) toupper ;
 
-
 \ *
 \ * UTILITY FUNCTIONS
 \ *
@@ -45,7 +44,7 @@
     \ remove spaces and return the character pressed
     begin
         key dup
-        32 <=
+        bl <=
     while
         drop
     repeat
@@ -66,7 +65,7 @@
 \  ;
 
 
-\ Constrained input
+\ Constrained input - a single button press
 : C-input ( compare-xt -- c )
         0 \ dummy previous key
         begin
@@ -577,7 +576,7 @@ variable mon_hit_strength \ monster hit strength
 
 \ Allows input of a number
 \ @TODO: Add backspace character, and better editing?
-: innum ( -- n )
+: innum-old ( -- n )
     
     \ first input has to be a number
     ['] num_char C-input
@@ -599,6 +598,59 @@ variable mon_hit_strength \ monster hit strength
     13 = until
 ;
 
+\ Adjust the character string at c-addr1 by n characters. The resulting character string, specified 
+\ by c-addr2 u2, begins at c-addr1 plus n characters and is u1 minus n characters long. 
+\ n is the number of characters to take from the start
+: /string ( c-addr1 u1 n -- c-addr2 u2 ) tuck - >r chars + r>  ;
+
+\ trim leading spaces (and control characters)
+: ltrim ( c-addr1 u1 -- c-addr2 u2 )
+    begin
+        dup 0> while                \ While there are characters left
+        over c@ bl > if exit then  \ Check if the current character is a space
+        1 /string           \ Move the string pointer forward by one character
+    repeat
+;
+
+\ returns number if no error, or just true if error
+: >uint ( c-addr u -- [n false] | true )
+    ltrim
+    dup 0= if 2drop true exit then
+    0 -rot \ this is the temporary value
+    over + swap ( 0 caddr1 u -- 0 caddr2 caddr1 )
+    ?do
+        I c@ num_char if 
+            [CHAR] 0 - swap 10 * +
+        else
+            2drop true unloop exit
+        then
+    loop
+    false
+;
+
+\ ACCEPT a n1 --- n2
+\ Transfers characters from the input terminal to the address a for n1 location or until receiving a 0x13 “CR”
+\ character. A 0x00 “null” character is added. It leaves on TOS n2 as the actual length of the received string. More, n2 is
+\ also copied in SPAN user variable. See also QUERY.
+
+\ accept ( c-addr +n1 – +n2  ) core “accept”
+\ 
+\ Get a string of up to n1 characters from the user input device and store it at c-addr. n2 is the length of the 
+\ received string. The user indicates the end by pressing RET. Gforth supports all the editing functions available on 
+\ the Forth command line (including history and word completion) in accept. 
+
+10 constant nbuff-size
+create nbuff nbuff-size 1+ allot
+
+: innum ( -- n )
+    begin
+        nbuff nbuff-size accept ( c-addr n -- n2 )
+        nbuff swap >uint ( c-addr n -- number error-flag )
+    while 
+        cr ." That's not a number!"
+        cr ." Please enter a number: "
+    repeat
+;
 
 : CH_char ( c -- c flag )
     dup [CHAR] C = 
