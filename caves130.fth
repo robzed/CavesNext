@@ -398,6 +398,8 @@ variable mon_hit_strength \ monster hit strength
 \ debug command to show player data
 : .player
     cr
+    ." Player Stats" cr
+    ." ============" cr
     ." spells{"
     #pspells 0 do
         spells I + c@ .
@@ -412,7 +414,8 @@ variable mon_hit_strength \ monster hit strength
     ." hp=" hp @ . 
     gold @ . ." g" cr
     ." multi=" multi @ . 
-    ." hitstr" hit_strength @ . ." mhs" mon_hit_strength @ .
+    ." hitstr" hit_strength @ . ." mhs" mon_hit_strength @ . cr
+    ." ------------" cr
 ;
 \ Example:
 \ game_data_setup .player
@@ -434,12 +437,12 @@ variable mon_hit_strength \ monster hit strength
 
 \ debug command to show the current monster in the room the player is in
 : .monster ( -- )
-    ." Monster: " x @ y @ .mons.name cr
-    ."   HP: " x @ y @ mons.hp . cr
-    ."   Gold: " x @ y @ mons.gold . cr
+    ." Monster: " .mons.name cr
+    ."   HP: " mons.hp . cr
+    ."   Gold: " mons.gold . cr
     ."   Spells:" cr
-    1 6 1 do
-        10 spaces I .spell_name ." ? = " x @ y @ I mSPELL@ . cr
+    6 1 do
+        10 spaces I .spell_name ." ? = " I x @ y @ mSPELL@ . cr
     loop
 ;
 
@@ -484,6 +487,8 @@ variable mon_hit_strength \ monster hit strength
             goroom
         loop
     loop
+    ." Player Location " x @ . ." ," y @ . cr
+    ." room "
 ;
 \ Example:
 \ setmap DEBUG_ld_rooms .map
@@ -752,7 +757,7 @@ variable mon_hit_strength \ monster hit strength
         cr cr
         ." There are " #mons @ . ." monsters"
     then
-
+    drop
     cr cr
     \ player moved, re-read room
 ;
@@ -788,11 +793,11 @@ variable mon_hit_strength \ monster hit strength
 
 : do_cast ( -- )
     ."  Cast spell" cr cr
-    1 spell@ if ." Type 1 to cast " 1 .spell_name ." (" 1 spell@ . ." left)" cr then
-    2 spell@ if ." Type 2 to cast " 2 .spell_name ." (" 2 spell@ . ." left)" cr then
-    3 spell@ if ." Type 3 to cast " 3 .spell_name ." (" 3 spell@ . ." left)" cr then
-    4 spell@ if ." Type 4 to cast " 4 .spell_name ." (" 4 spell@ . ." left)" cr then
-    5 spell@ if ." Type 5 to cast " 5 .spell_name ." (" 5 spell@ . ." left)" cr then
+    1 spell@ if ." Type 1 to cast " 1 .spell_name ."  (" 1 spell@ . ." left)" cr then
+    2 spell@ if ." Type 2 to cast " 2 .spell_name ."  (" 2 spell@ . ." left)" cr then
+    3 spell@ if ." Type 3 to cast " 3 .spell_name ."  (" 3 spell@ . ." left)" cr then
+    4 spell@ if ." Type 4 to cast " 4 .spell_name ."  (" 4 spell@ . ." left)" cr then
+    5 spell@ if ." Type 5 to cast " 5 .spell_name ."  (" 5 spell@ . ." left)" cr then
     ." Type 6 to not cast a spell" cr
 
     begin
@@ -877,16 +882,16 @@ variable mon_hit_strength \ monster hit strength
 
     cr
     20 x_rand 9 - mon_hit_strength @ 5 * - hit_strength @ 5 * +
-
+    ( result of fight ... then we balance against points )
     mons.hp + hp @ > if
       
       hp @ mon_hit_strength @ - hp !
-      ." The " .mons.name ." hits you for " mon_hit_strength @ . 
+      ." The " .mons.name ."  hits you for " mon_hit_strength @ . 
       
     else
       
-      mons.hp hit_strength - mons.hp!
-      ." You hit the " .mons.name ." for " hit_strength @
+      mons.hp hit_strength @ - mons.hp!
+      ." You hit the " .mons.name ."  for " hit_strength @ .
     then
 
     mons.hp 1 < if
@@ -915,7 +920,7 @@ variable mon_hit_strength \ monster hit strength
     true_level @ 1+ true_level !
     cr cr ." You completed the game with " gold @  . ." gold pieces." cr
     ." You have your levels restored and are at the ultimate level, " true_level @ . ." ."
-    cr ." You had " hp @ ." hps at the end." cr cr
+    cr ." You had " hp @ . ." hps at the end." cr cr
     ." CONGRATULATIONS!!!!  (Tell Rob!!!)" cr cr
 
 
@@ -970,7 +975,7 @@ variable mon_hit_strength \ monster hit strength
         [char] S = if
             do_cast	    \ check and do player spell casting
         then
-        mons.hp if
+        mons.hp 0 > if
             moncast	    \ monster casting
         then
         fighting	    \ real fighting Zzzz
@@ -988,19 +993,22 @@ variable mon_hit_strength \ monster hit strength
         \ if user has entered multiple fights before, do them...
         [CHAR] M
     then
-    multi @ 1- multi !
+    multi @ if
+        multi @ 1- multi !
+    then
 
     dup [CHAR] F = if ."  Fight" cr then
 
     dup [CHAR] R = if
         \ option chosen was RUN option
         
+        drop
         do_run
         G_reread_room \ player moved, re-read room
 
     else
         \ spells and fighting
-        do_fight
+        do_fight ( takes a key selector )
         G_same_room   \ - Monster was alive loop - ie no room change
 
     then
@@ -1116,11 +1124,11 @@ variable mon_hit_strength \ monster hit strength
     \ DEBUG_ld_rooms
     \ .map
     game_data_setup
+    goroom
     .player 
     rmintro
     1 hit_strength !
     1 mon_hit_strength !
-    goroom
     \ .map   
 ;
 
