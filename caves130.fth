@@ -1132,9 +1132,15 @@ variable mon_hit_strength \ monster hit strength
     \ .map   
 ;
 
+: cls
+\    $0c emit \ form feed character
+    cr cr cr cr cr
+;
 \ run the game!
-\ caves_main
 : run
+    cls
     caves_main
 ;
+
+run
 
