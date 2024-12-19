@@ -286,7 +286,7 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
 
 \ debug command to show the room data
 \ should be called sometime after setup
-: .room ( x y -- )
+: .room_xy ( x y -- )
     2dup mons@ .
     2dup mons@ get_monster_name type
     2dup mons_HP@ NOT_LOADED <> if
@@ -308,6 +308,7 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
     2drop
 ;
 
+
 \ debug command to show the map
 \ should be called sometime after setmap
 : .map
@@ -315,7 +316,7 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
     height_y 1+ 1 do
         width_x 1+ 1 do
             ." (" i . ." ," j . ." ) = "
-            i j .room cr
+            i j .room_xy cr
         loop
     loop
 ;
@@ -415,6 +416,32 @@ variable mon_hit_strength \ monster hit strength
 ;
 \ Example:
 \ game_data_setup .player
+
+\ debug command to show the current room the player is in
+: .room ( -- )
+    x @ y @ .room_xy
+;
+
+: .spell_name ( n -- )
+    dup 1 = if ." an Ice Dart" then
+    dup 2 = if ." a Fireball" then
+    dup 3 = if ." Regenerate" then
+    dup 4 = if ." Drain Level" then
+    dup 5 = if ." Gain Strength" then
+    dup 6 = if ." MEGA DEATH" then
+    drop
+;
+
+\ debug command to show the current monster in the room the player is in
+: .monster ( -- )
+    ." Monster: " x @ y @ .mons.name cr
+    ."   HP: " x @ y @ mons.hp . cr
+    ."   Gold: " x @ y @ mons.gold . cr
+    ."   Spells:" cr
+    1 6 1 do
+        10 spaces I .spell_name ." ? = " x @ y @ I mSPELL@ . cr
+    loop
+;
 
 
 \
@@ -761,11 +788,11 @@ variable mon_hit_strength \ monster hit strength
 
 : do_cast ( -- )
     ."  Cast spell" cr cr
-    1 spell@ if ." Type 1 to cast an Ice Dart (" 1 spell@ . ." left)" cr then
-    2 spell@ if ." Type 2 to cast a Fireball (" 2 spell@ . ." left)" cr then
-    3 spell@ if ." Type 3 to cast Regenerate (" 3 spell@ . ." left)" cr then
-    4 spell@ if ." Type 4 to cast Drain level (" 4 spell@ . ." left)" cr then
-    5 spell@ if ." Type 5 to cast Gain Strength (" 5 spell@ . ." left)" cr then
+    1 spell@ if ." Type 1 to cast " 1 .spell_name ." (" 1 spell@ . ." left)" cr then
+    2 spell@ if ." Type 2 to cast " 2 .spell_name ." (" 2 spell@ . ." left)" cr then
+    3 spell@ if ." Type 3 to cast " 3 .spell_name ." (" 3 spell@ . ." left)" cr then
+    4 spell@ if ." Type 4 to cast " 4 .spell_name ." (" 4 spell@ . ." left)" cr then
+    5 spell@ if ." Type 5 to cast " 5 .spell_name ." (" 5 spell@ . ." left)" cr then
     ." Type 6 to not cast a spell" cr
 
     begin
@@ -781,28 +808,28 @@ variable mon_hit_strength \ monster hit strength
 
     dup 1 = if
         mons.hp 1- mons.hp!
-        cr ." You cast an Ice Dart" cr
+        cr ." You cast " 1 .spell_name cr
         1 spell@ 1- 1 spell!
     then
     dup 2 = if
         mons.hp 10 - mons.hp!
-        cr ." You cast a Fireball" cr
+        cr ." You cast " 2 .spell_name cr
         2 spell@ 1- 2 spell!
     then
     dup 3 = if
         hp @ 10 + hp !
-        cr ." You cast Regenerate" cr
+        cr ." You cast " 3 .spell_name cr
         ." You fell stronger" cr
         3 spell@ 1- 3 spell!
     then
     dup 4 = if
         hp @ 20 + hp !
-        cr ." You cast Drain Level" cr
+        cr ." You cast " 4 .spell_name cr
         4 spell@ 1- 4 spell!
     then
     dup 5 = if
         hit_strength @ 1+ hit_strength !
-        cr ." You cast Gain Strength" cr
+        cr ." You cast "  5 .spell_name cr
         5 spell@ 1- 5 spell!
     then
     drop
@@ -815,28 +842,28 @@ variable mon_hit_strength \ monster hit strength
     dup x @ y @ mSPELL1-
 
     dup 1 = if
-      cr ." The " .mons.name ."  casts an Ice dart" cr
+      cr ." The " .mons.name ."  casts "  1 .spell_name cr
       hp @ 1- hp !
     then
     dup 2 = if 
-      cr ." The " .mons.name ."  casts a Fireball" cr
+      cr ." The " .mons.name ."  casts "  2 .spell_name cr
       hp @ 10 - hp !
     then
     dup 3 = if
-      cr ." The " .mons.name ."  casts Regenerate" cr
+      cr ." The " .mons.name ."  casts "  3 .spell_name cr
       mons.hp 10 + mons.hp!
     then
     dup 4 = if
-      cr ." The " .mons.name ."  casts Drain level" cr
+      cr ." The " .mons.name ."  casts "  4 .spell_name cr
       hp @ 10 - hp !
       level @ 1 - level !
     then
     dup 5 = if
-      cr ." The " .mons.name ."  casts Gain Strength" cr
+      cr ." The " .mons.name ."  casts "  5 .spell_name cr
       mon_hit_strength @ 1+ mon_hit_strength !
     then
     dup 6 = if          \ bug fix 10-Nov-2003 by Rob, spotted by Stu :-(
-      cr ." The " .mons.name ."  casts MEGA DEATH" cr 
+      cr ." The " .mons.name ."  casts "  6 .spell_name cr 
       ." Oh S**t!!!" cr
       hp @ 50 - hp !
     then
