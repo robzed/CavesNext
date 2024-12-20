@@ -33,30 +33,6 @@
 \ *
 
 
-\ -----------------------------------------------------
-\ Support words for gForth and pForth
-\ Comment out for vForth
-
-\ These are for gForth
-\ ====================
-\ : upper ( c1 -- c2 ) toupper ;
-\ : cls    cr cr cr cr cr ;
-
-
-\ These are for pForth
-\ ====================
-\ convert a character to support case
-: upper ( c1 -- c2 ) 
-    \ if( c1 >= 'a' && c1 <= 'z')
-    \ return c1 - ('a' - 'A');
-    dup [CHAR] a [CHAR] z 1+ within if
-        [CHAR] a - [CHAR] A +
-    then
-;
-\ rename ma
-: memory map ;
-
-\ -----------------------------------------------------
 
 \ *
 \ * UTILITY FUNCTIONS
@@ -1220,6 +1196,3 @@ create nbuff nbuff-size 1+ allot
     cls
     caves_main
 ;
-
-run
-

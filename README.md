@@ -89,7 +89,7 @@ There is a helper script - but I haven't got around to documenting any of this y
 
 I've put the source files under GPLv3, although there is a shareware message in the binary. 
 
-Usually my code is under permissive licenses like the MIT license or Zlib-style licenses. If you wnat to do something that you think the GPLv3 won't allow you to do, then tell me what, and we can discuss a change.
+Usually my code is under permissive licenses like the MIT license or Zlib-style licenses. If you want to do something that you think the GPLv3 won't allow you to do, then tell me what, and we can discuss a change.
 
 ### Notes on the name
 
