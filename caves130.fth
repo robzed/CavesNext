@@ -33,9 +33,30 @@
 \ *
 
 
-\ These are for gForth emulation of vForth words
+\ -----------------------------------------------------
+\ Support words for gForth and pForth
 \ Comment out for vForth
-: upper ( c1 -- c2 ) toupper ;
+
+\ These are for gForth
+\ ====================
+\ : upper ( c1 -- c2 ) toupper ;
+\ : cls    cr cr cr cr cr ;
+
+
+\ These are for pForth
+\ ====================
+\ convert a character to support case
+: upper ( c1 -- c2 ) 
+    \ if( c1 >= 'a' && c1 <= 'z')
+    \ return c1 - ('a' - 'A');
+    dup [CHAR] a [CHAR] z 1+ within if
+        [CHAR] a - [CHAR] A +
+    then
+;
+\ rename ma
+: memory map ;
+
+\ -----------------------------------------------------
 
 \ *
 \ * UTILITY FUNCTIONS
@@ -1194,10 +1215,6 @@ create nbuff nbuff-size 1+ allot
     \ .map   
 ;
 
-: cls
-\    $0c emit \ form feed character
-    cr cr cr cr cr
-;
 \ run the game!
 : run
     cls
