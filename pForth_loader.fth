@@ -1,7 +1,7 @@
 \ pForth loader
 \ Copright (c) 2024 Rob Probin
 \ Written 20 December 2024 by Rob Probin
-\ MIT license
+\ GPLv3 license
 
 \ convert a character to support case
 : upper ( c1 -- c2 ) 

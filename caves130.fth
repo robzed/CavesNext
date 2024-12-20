@@ -23,7 +23,7 @@
 \ *
 \ * In the C version I have attempted to add more structure to the program
 \ * to allow easy examination of the program, but it is still far from
-\ * perfect.
+\ * perfect. Forth version is slightly better, but still not great.
 \ *
 \ * The moral of this story....
 \ *
@@ -32,7 +32,9 @@
 \ *                                   ZED.
 \ *
 
-
+\ =====================================================================
+\ License for Code - see file 'LICENSE' and README.md - summary: GPL v3
+\ =====================================================================
 
 \ *
 \ * UTILITY FUNCTIONS

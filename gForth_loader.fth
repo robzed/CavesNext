@@ -1,7 +1,7 @@
 \ gForth loader
 \ Copright (c) 2024 Rob Probin
 \ Written 20 December 2024 by Rob Probin
-\ MIT license
+\ GPLv3 license
 
 : upper ( c1 -- c2 ) toupper ;
 : cls    cr cr cr cr cr ;
