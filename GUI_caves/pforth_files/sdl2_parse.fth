@@ -7,8 +7,8 @@
 
 : c-library ( 'name' -- )
     \ could use create - but at the moment we just drop the name
-    BL WORD count 
-    \ ." C library ----------------" type cr
+    BL WORD 
+    \ count ." C library ----------------" type cr
     \ .s cr
     drop
 ;
