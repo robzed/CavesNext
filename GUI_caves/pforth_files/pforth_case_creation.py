@@ -148,6 +148,10 @@ def parse_sdl_api_file(file_path):
         lines = f.readlines()
 
     for line in lines:
+        if len(line) >255:
+            print(">>>>>> Line too long", line, len(line))
+            sys.exit(11)
+            
         sline = line.strip()
         xline = sline.split()
         if len(xline) > 0:
