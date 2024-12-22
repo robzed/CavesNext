@@ -6,6 +6,23 @@ Currently this is SDL2.
 
 Currently the pForth related files are all Zlib licensed. 
 
+Changes to pForth Core
+======================
+Apart from adding custom C binds (via sdl_custom.c), there are two other areas that cause problems:
+
+1. On the stock pForth, only 5 parameters can be passed to a SDL function. Even SDL_CreateWindow takes 6, so this
+is tricky to avoid.
+
+2. Names are limited to 31 characters ... and a reasonable number of important SDL functions are slightly longer than this. The pforth_case_case_creation.py will give warnings in this case, but none are longer than 63 characters. 
+
+3. Floating point parameters and return are not supported right now for pForth in the C interface.
+
+Since we want to keep as close to the SDL names as possible (with the exceptions noted by 
+ProgrammingRainbow) we need to solve at last 1 and 2. 
+
+Item 3 might be important - see limitations for how to solve this.
+
+
 Limitations
 ===========
 
@@ -38,7 +55,8 @@ additional definitions you'll need beyond C functions.
 `sdl2_example.fth` shows a basic demo of SDL.
 
 `pforth.patch` has the patches in for C functions that support up to 12 parameters. It does 
-not contain the pfcustom.c changes, the Makefile changes or the above auto-generated files. 
+not contain any of the other changes (the pfcustom.c changes, the Makefile changes 
+or the above auto-generated files.)
 
 Build the SDL pForth
 ====================
@@ -127,6 +145,9 @@ into
 NOTE: This uses `sdl2_parse.fth` before loading `SDL2/SDL.fs`. `sdl2_parse.fth` contains definitions
 to parse the gForth defintions inside `SDL2/`
 
+9. Need more? There are a bunch of examples (see main.fs for example) at https://github.com/ProgrammingRainbow/Beginners-Guide-to-SDL2-in-Gforth that shouldn't be hard to get working under pForth rather than gForth - 
+with the help of sdl2_parse.fth first before inclduing SDL2/SDL.fs, SDL2/SDL_image.fs, SDL2/SDL_ttf.fs and
+SDL2/SDL_mixer.f.
 
 Other notes: The pf_custom instructions say `Then rebuild the Forth using "pforth -i system.fth"` but 
 I suspect `make all` does all of this.

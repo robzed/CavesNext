@@ -128,12 +128,18 @@ def parse_c_function(xline):
     else:
         print("Duplicate function name", xline)
 
-    if len(c_name) > 63:
-        print(">>>>>> C function name too long", c_name, len(c_name))
-        sys.exit(9)
-    if len(forth_name) > 63:
-        print(">>>>>> Forth function name too long", forth_name, len(forth_name))
-        sys.exit(10)
+    if len(c_name) > 31:
+        if len(c_name) > 63:
+            print(">>>>>> C function name too long", c_name, len(c_name))
+            sys.exit(9)
+        else:
+            print("WARNING: Long C function name", c_name, len(c_name))
+    if len(forth_name) > 31:
+        if len(forth_name) > 63:
+            print(">>>>>> Forth function name too long", forth_name, len(forth_name))
+            sys.exit(10)
+        else:
+            print("WARNING: Long Forth function name", forth_name, len(forth_name))
 
 
 
