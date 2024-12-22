@@ -16,22 +16,26 @@
 
 #include "sdl2_helper.h"
 
-//
-// For some reason these were throwing errors...
-//
+/*
+ * For some reason these were throwing errors...
+ */
 #undef SDL_Swap16
-SDL_Swap16(Uint16 x)
+#undef SDL_Swap32
+#undef SDL_Swap64
+static Uint16 SDL_Swap16(Uint16 x);
+static Uint32 SDL_Swap32(Uint32 x);
+static Uint64 SDL_Swap64(Uint64 x);
+
+Uint16 SDL_Swap16(Uint16 x)
 {
     return SDL_static_cast(Uint16, ((x << 8) | (x >> 8)));
 }
-#undef SDL_Swap32
-SDL_Swap32(Uint32 x)
+Uint32 SDL_Swap32(Uint32 x)
 {
     return SDL_static_cast(Uint32, ((x << 24) | ((x << 8) & 0x00FF0000) |
                                     ((x >> 8) & 0x0000FF00) | (x >> 24)));
 }
-#undef SDL_Swap64
-SDL_Swap64(Uint64 x)
+Uint64 SDL_Swap64(Uint64 x)
 {
     Uint32 hi, lo;
 

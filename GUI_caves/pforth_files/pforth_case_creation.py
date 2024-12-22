@@ -52,12 +52,16 @@ def duplicate(c_name, forth_name, ret_type, parameters):
 
 def create_dict_entry(c_name, comment_out):
     global dic_entry_code
-    output =  comment_out + f'(CFunc0) {c_name},'   #f'CreateDicEntryC(CASE_{word}, "{word}", 0);'
+    output =  f'(CFunc0) {c_name},'   #f'CreateDicEntryC(CASE_{word}, "{word}", 0);'
+    if comment_out is not None:
+        output = "/*" + comment_out + output + "*/"
     dic_entry_code.append(output)
 
 def create_glue_code(forth_name, ret_type, params, comment_out):
     global glue_code
-    output = comment_out + f'err = CreateGlueToC( "{forth_name}", i++, {ret_type}, {params}); if( err < 0 ) return err;'
+    output = f'err = CreateGlueToC( "{forth_name}", i++, {ret_type}, {params}); if( err < 0 ) return err;'
+    if comment_out is not None:
+        output = "/*" + comment_out + output + "*/"
     glue_code.append(output)
 
 def add_helper_code(str):
@@ -71,11 +75,11 @@ def parse_c_function(xline):
     c_name = xline[2]
     parameters = 0
     return_index = 0
-    comment_out = ""
+    comment_out = None
     for i in range(3, len(xline)):
         if xline[i] == "r":
             print("We don't yet support float parameter values", xline)
-            comment_out = "//(float) "
+            comment_out = "(float) "
         elif xline[i] == "a":
             pass
         elif xline[i] == "n":
@@ -103,7 +107,7 @@ def parse_c_function(xline):
         # pForth doesn't support float return values, so we need to
         # extend it to support float return values (probably doubles).
         ret_type = "C_RETURNS_FLOAT"
-        comment_out = "//(float) "
+        comment_out = "(float) "
     else:
         print("Illegal return type", xline[return_index])
         print(xline)
@@ -115,7 +119,7 @@ def parse_c_function(xline):
         print("Too many parameters", xline)
         sys.exit(6)
     if parameters > 5:
-        comment_out = "//(params > 5) "
+        comment_out = "(params > 5) "
         # for the moment remove parameters more than 5
 
     if not duplicate(c_name, forth_name, ret_type, parameters):
@@ -124,6 +128,12 @@ def parse_c_function(xline):
     else:
         print("Duplicate function name", xline)
 
+    if len(c_name) > 63:
+        print(">>>>>> C function name too long", c_name, len(c_name))
+        sys.exit(9)
+    if len(forth_name) > 63:
+        print(">>>>>> Forth function name too long", forth_name, len(forth_name))
+        sys.exit(10)
 
 
 
