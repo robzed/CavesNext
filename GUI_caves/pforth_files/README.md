@@ -145,6 +145,24 @@ into
 NOTE: This uses `sdl2_parse.fth` before loading `SDL2/SDL.fs`. `sdl2_parse.fth` contains definitions
 to parse the gForth defintions inside `SDL2/`
 
+However, you need to make a bigger dictionary:     
+
+You can use the word MAP to print information about the current size of the dictionary. If you enter MAP you will see something like this: 
+
+Notice the variables CODE-SIZE and HEADERS-SIZE. They can be used to increase the size of the dictionary when you use SAVE-FORTH. For example, launch pForth as you normally do. Then enter:
+
+    500000 CODE-SIZE !         \ request code portion of new dictionary to be 500000 bytes
+    300000 HEADERS-SIZE !      \ request name portion of new dictionary to be 300000 bytes
+    c" bigger.dic" SAVE-FORTH  \ create new and bigger dictionary file
+    bye
+
+Now run pForth using the new dictionary:
+
+    pforth -dbigger.dic
+
+And use MAP to verify that the dictionary is actually bigger. You can change the name of the new dictionary to "pforth.dic" to make it the default. 
+
+
 9. Need more? There are a bunch of examples (see main.fs for example) at https://github.com/ProgrammingRainbow/Beginners-Guide-to-SDL2-in-Gforth that shouldn't be hard to get working under pForth rather than gForth - 
 with the help of sdl2_parse.fth first before inclduing SDL2/SDL.fs, SDL2/SDL_image.fs, SDL2/SDL_ttf.fs and
 SDL2/SDL_mixer.f.
