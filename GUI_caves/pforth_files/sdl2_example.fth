@@ -36,9 +36,8 @@ NULL VALUE renderer
 : c-str-len ( c-addr -- c-addr u ) 0 BEGIN 2DUP + C@ WHILE 1+ REPEAT ;
 
 : error ( c-addr u -- )
-    stderr write-file
-    SDL_GetError c-str-len stderr write-file
-    s\" \n" stderr write-file
+    ." Error: " type cr
+    SDL_GetError c-str-len type space cr
     1 TO exit-value
     game-cleanup
 ;
