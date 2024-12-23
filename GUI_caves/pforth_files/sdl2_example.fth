@@ -14,7 +14,7 @@ S" " set-require-subdir
 
 \ Constants
 0 CONSTANT NULL
-s\" pForth SDL demo\0" DROP CONSTANT WINDOW_TITLE
+s\" pForth SDL demo\x00" DROP CONSTANT WINDOW_TITLE
 800 CONSTANT WINDOW_WIDTH
 600 CONSTANT WINDOW_HEIGHT
 SDL_INIT_EVERYTHING CONSTANT SDL_FLAGS
@@ -43,16 +43,21 @@ NULL VALUE renderer
 ;
 
 : initialize-sdl ( -- )
+    ." init sdl " cr 1000 ms
+
     SDL_FLAGS SDL_Init IF
         S" Error initializing SDL: " error
     THEN
 
+    ." go to create window " cr 1000 ms
     WINDOW_TITLE SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT 0
     SDL_CreateWindow TO window
     window 0= IF 
+        ." Error creating Window: " cr
         S" Error creating Window: " error
     THEN
 
+    ." test2 " cr 1000 ms
     window -1 0 SDL_CreateRenderer TO renderer
     renderer 0= IF
         S" Error creating Renderer: " error
@@ -70,6 +75,8 @@ NULL VALUE renderer
 ;
 
 : play-game ( -- )
+    ." play game " cr 1000 ms
+
     initialize-sdl
     game-loop
 ;
