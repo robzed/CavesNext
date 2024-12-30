@@ -216,6 +216,7 @@ false value print_to_terminal
         dup c@ ~emit
         1+
     loop
+    drop
 ;
 
 : (~")  ( -- , type following string )
@@ -383,9 +384,10 @@ CREATE clipRect SDL_Rect ALLOT
         exit
     THEN
     load-font
-
     false to quit_flag
-    renderer 255 255 255 255 SDL_SetRenderDrawColor
+    renderer 255 255 255 255 SDL_SetRenderDrawColor if
+        ." Error SDL_SetRenderDrawColor" . cr
+    then
     clear-renderer
     clear_text_buf
     clip_rect_check
@@ -403,11 +405,12 @@ CREATE clipRect SDL_Rect ALLOT
 \    key? quit_flag or until
 
     \ This does the whole game
+    depth if ." ============ WARNING Stack not empty =========" cr .s then
     caves_main
     \ [char] A ~emit ~cr
     \ ~key .
 
-    depth if ." ============ WARNING Stack not empty =========" cr then
+    depth if ." ============ WARNING Stack not empty =========" cr .s then
     close_down
 ;
 
