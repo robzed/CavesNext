@@ -196,7 +196,27 @@ create text_buffer NUM_LINES NUM_COLUMNS * allot
     cr
 ;
 
+: handle_keydown { scancode keycode -- }
+    ." Keydown " scancode . keycode . cr
+    scancode SDL_SCANCODE_ESCAPE = IF
+        true to quit_flag
+\        SDL_MESSAGEBOX_INFORMATION S\" Key Pressed\x00" S\" Key Pressed\x00" window SDL_ShowSimpleMessageBox drop
+    THEN
+;
+
 variable loopc
+0 value game_start_time
+
+: close_down
+    ." Exiting (loop count = " loopc @ . ." ) " cr
+    ." Average frame time = " SDL_GetTicks64 game_start_time - loopc @ / . ." ms" cr
+    .frame_stats
+
+    font-tex SDL_DestroyTexture
+    IMG_Quit
+    platform-close
+
+;
 
 : ~key ( -- key | -1 for quit )
     render_text_buf
@@ -210,7 +230,15 @@ variable loopc
         loopc @ 1+ loopc !
     key? quit_flag or until
     
-    quit_flag if -1 else key then
+    quit_flag if 
+        \ bye = caves130_GUI.fth doesn't handle quit properly - so just abort
+        close_down
+        quit
+        \ normally we shoudl return a sentinel value
+        -1
+    else 
+        key
+    then
 ;
 
 : (keystep)
@@ -235,7 +263,6 @@ include caves130_GUI.fth
 \    clear-screen
 \ ;
 
-0 value game_start_time
 
 \ why is this not in SDL2 from SDL_image.fs ??? 
 #2	constant IMG_INIT_PNG
@@ -270,14 +297,9 @@ include caves130_GUI.fth
     caves_main
     \ [char] A ~emit ~cr
     \ ~key .
-    ." Exiting (loop count = " loopc @ . ." ) " cr
-    ." Average frame time = " SDL_GetTicks64 game_start_time - loopc @ / . ." ms" cr
-    .frame_stats
-    depth if ." ============ WARNING Stack not empty =========" cr then
 
-    font-tex SDL_DestroyTexture
-    IMG_Quit
-    platform-close
+    depth if ." ============ WARNING Stack not empty =========" cr then
+    close_down
 ;
 
 \ run

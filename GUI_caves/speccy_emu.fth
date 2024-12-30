@@ -112,12 +112,12 @@ CREATE game_event SDL_Event ALLOT
     THEN
 ;
 
-: nothing ;
+: nothing2 ( n n -- ) 2drop ;
 
 \ ----------------- Public interface ----------------- \
 
 defer do_keyd
-' nothing is do_keyd
+' nothing2 is do_keyd
 
 
 : do-event-loop
@@ -137,14 +137,17 @@ defer do_keyd
             game_event SDL_KeyboardEvent-keysym SDL_Keysym-scancode s32@
             \ ." Key pressed " dup . cr
             \ do_keyd
-            DUP SDL_SCANCODE_ESCAPE = IF
-                true to quit_flag
-            THEN
+            \ DUP SDL_SCANCODE_ESCAPE = IF
+            \    true to quit_flag
+            \ THEN
             DUP SDL_SCANCODE_SPACE = IF
                 ." Pressed Space - Change colour" cr
                 random-color
+            else
+                \ ." Key pressed " dup . cr
+                game_event SDL_KeyboardEvent-keysym SDL_Keysym-sym s32@ 
+                do_keyd
             THEN
-            drop
             \ From slouken https://discourse.libsdl.org/t/scancode-vs-keycode/32860/5
             \ SDL scancodes are used for games that require position independent key input, e.g. an FPS that uses WASD 
             \ for movement should use scancodes because the position is  important (i.e. the key position shouldn’t 
