@@ -614,6 +614,7 @@ create nbuff nbuff-size 1+ allot
 : innum ( -- n )
     begin
         nbuff nbuff-size ~accept ( c-addr n -- n2 )
+        \ dup . dup nbuff swap ." ->" type ." <- " cr
         nbuff swap >uint ( c-addr n -- number error-flag )
     while 
         ~cr ~" That's not a number!"

@@ -355,28 +355,47 @@ key_array_max_size array key_array
 \ received string. The user indicates the end by pressing RET. Gforth supports all the editing functions available on 
 \ the Forth command line (including history and word completion) in accept. 
 
+: step_back
+    textx if
+        textx 1- to textx
+    else
+        texty if
+            texty 1- to texty
+            NUM_COLUMNS 1- to textx
+        then
+    then
+;
+
 : ~accept { caddr n1 | numchars -- n2 }
     0 -> numchars
     begin
         ~key 
-        .s
         n1 if \ only allow if n1 > 0
             dup bl >= 
-                over 128 <
+                over 127 <
                     and if
                         dup ~emit
                         dup caddr ! 
+                        1 +-> caddr
                         -1 +-> n1
                         1 +-> numchars
                     then
         then
-        .s
         dup 13 = over 10 = or if
             drop numchars
             exit
         then
-        .s
-        ." Key = " dup . cr
+        dup 127 = over 8 = or if
+            numchars if
+                -1 +-> caddr
+                1 +-> n1
+                -1 +-> numchars
+                step_back
+                bl ~emit
+                step_back
+            then
+        then
+        \ ." Numchars = " numchars . ." n1 = " n1 . .s
         drop
     again
 ;
