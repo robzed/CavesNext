@@ -40,10 +40,12 @@ defer keystep
 
 8 constant CHAR_WIDTH
 8 constant CHAR_HEIGHT
+0 value pixel_y_offset
 
 : calc_destrect ( x y -- )
     \ set position of the text
     ( y ) CHAR_HEIGHT * 
+        pixel_y_offset +
         PIXEL_SCALE *
         text_destrect SDL_Rect-y u32!
     ( x ) CHAR_WIDTH *  
@@ -128,32 +130,68 @@ create text_buffer NUM_LINES NUM_COLUMNS * allot
     loop
 ;
 
-\ : scroll_y
-\    NUM_LINES 1- 1 ?do
-\        text_buffer i NUM_COLUMNS * + 
-\        dup NUM_COLUMNS -
-\        NUM_COLUMNS 
-\        move ( src dest u -- )
-\    loop
-\    NUM_COLUMNS 0 text_buffer + NUM_COLUMNS
-\    bl fill  ( addr u -- ) 
-\ ;
+: scroll_y
+    text_buffer NUM_COLUMNS + 
+    text_buffer
+    NUM_LINES 1- NUM_COLUMNS *
+        move ( src dest u -- )
+
+    \ erase the last line
+    NUM_COLUMNS NUM_LINES 1- * text_buffer +
+    NUM_COLUMNS
+    bl
+    fill  ( addr u char -- ) 
+;
+
+variable loopc
+
+: render_all
+    render_text_buf
+    show_screen
+    clear-renderer
+;
+: interframe
+        do-event-loop
+        \ could do special updates while waiting for key here
+        \ if screen changed you will need show_screen
+        frame-delay
+        loopc @ 1+ loopc !
+;
+: make_picture
+    render_all
+    interframe
+;
+
+true value enable_scroll
+true value enable_pixel_scroll
 
 : scroll? 
         texty NUM_LINES >= if
-            ." scroll " cr
-            \ NUM_LINES 1- to texty
-            \ scroll_y
-            0 to texty
-            clear_text_buf
+            enable_scroll if
+                enable_pixel_scroll if
+                    CHAR_HEIGHT 0 ?do
+                        I negate to pixel_y_offset
+                        make_picture
+                        20 SDL_Delay
+                    loop
+                    0 to pixel_y_offset
+                then
+                NUM_LINES 1- to texty
+                scroll_y
+                make_picture
+                20 SDL_Delay
+                \ ." Scroll?" key
+            else
+                0 to texty
+                clear_text_buf
+            then
         then
 ;
 
 : text_step_1
     textx 1+ to textx
     textx NUM_COLUMNS >= if
-        ." new line " cr
-               0 to textx
+        0 to textx
         texty 1+ to texty
         scroll?
     then
@@ -164,9 +202,12 @@ create text_buffer NUM_LINES NUM_COLUMNS * allot
     y texty !
 ;
 
+false value print_to_terminal
+
 : ~emit ( c -- )
-    dup text_buf!
-    emit
+    print_to_terminal if dup emit then
+
+    text_buf!
     text_step_1
 ;
 
@@ -184,27 +225,73 @@ create text_buffer NUM_LINES NUM_COLUMNS * allot
 : ~" ( <string> -- , type string )
         state @
         IF      compile (~")  ,"
-        ELSE [char] " parse type
+        ELSE [char] " parse ~type
         THEN
 ; immediate
 
 
-: ~cr
+: ~cr ( -- )
+    print_to_terminal if cr then
+
     0 to textx
     texty 1+ to texty
     scroll? 
-    cr
 ;
 
+: ~space ( -- ) bl ~emit ;
+
+: (~.) ( n -- ) dup abs 0 <# #s rot sign #> ;
+: ~. ( n -- ) (~.)  ~type ~space ;
+
+
+\ : fifo_array  ( empty #cells -- ) ( -- addr )
+\     create dup , swap , 0 , cell* allot
+\    does> swap cell* +
+\ ;
+
+32 constant key_array_max_size
+key_array_max_size array key_array
+0 value key_array_current_size
+: key_array_empty? ( -- flag ) key_array_current_size 0= ;
+: key_array_keys? ( -- flag ) key_array_current_size 0<> ;
+: key_array_full? ( -- flag ) key_array_current_size key_array_max_size = ;
+: key_array_push ( n -- )
+    key_array_full? 0= if
+        key_array_current_size key_array !
+        key_array_current_size 1+ to key_array_current_size
+    else
+        ." **** Key array full - drop key **** " cr
+    then
+;
+: key_array_drop ( -- )
+    key_array_current_size 1 ?do
+        I key_array @ I 1- key_array !
+    loop
+;
+: key_array_peek ( -- n )
+        0 key_array @   \ oldest
+;
+: key_array_pop ( -- n )
+    key_array_keys? if 
+        key_array_peek
+        key_array_drop
+        key_array_current_size 1- to key_array_current_size
+    else
+        ." **** Key array empty **** " cr
+        abort
+    then
+;
+
+
 : handle_keydown { scancode keycode -- }
-    ." Keydown " scancode . keycode . cr
+    \ ." Keydown " scancode . keycode . cr
     scancode SDL_SCANCODE_ESCAPE = IF
         true to quit_flag
 \        SDL_MESSAGEBOX_INFORMATION S\" Key Pressed\x00" S\" Key Pressed\x00" window SDL_ShowSimpleMessageBox drop
     THEN
+    keycode key_array_push
 ;
 
-variable loopc
 0 value game_start_time
 
 : close_down
@@ -218,17 +305,24 @@ variable loopc
 
 ;
 
+: (~key)
+        key_array_keys? if
+            key_array_pop
+        else
+            key? if
+                key
+            else
+                ." Abort - no key" cr
+                abort
+            then
+        then
+;
+
 : ~key ( -- key | -1 for quit )
-    render_text_buf
-    show_screen
-    clear-renderer
+    render_all
     begin
-        do-event-loop
-        \ could do special updates while waiting for key here
-        \ if screen changed you will need show_screen
-        frame-delay
-        loopc @ 1+ loopc !
-    key? quit_flag or until
+        interframe
+    key? quit_flag or key_array_keys? or until
     
     quit_flag if 
         \ bye = caves130_GUI.fth doesn't handle quit properly - so just abort
@@ -236,8 +330,8 @@ variable loopc
         quit
         \ normally we shoudl return a sentinel value
         -1
-    else 
-        key
+    else
+        (~key)
     then
 ;
 
@@ -250,8 +344,9 @@ variable loopc
 ' (keystep) is keystep
 
 : ~accept 
+    \ @TODO - implement
+    ." *** Accept not implemented yet!! *** "
     accept
-
 ;
 
 include caves130_GUI.fth
@@ -267,6 +362,19 @@ include caves130_GUI.fth
 \ why is this not in SDL2 from SDL_image.fs ??? 
 #2	constant IMG_INIT_PNG
 
+: clear_screen
+    clear_text_buf
+;
+
+CREATE clipRect SDL_Rect ALLOT
+: clip_rect_check
+    cr
+    renderer SDL_RenderIsClipEnabled if ." Clip enabled" else ." Clip not enabled" then cr  
+    renderer clipRect SDL_RenderGetClipRect
+    ." Clip rect = " clipRect .SDL_Rect
+    cr
+;
+
 : run
     0 loopc !
     S" Caves" platform-open
@@ -280,8 +388,9 @@ include caves130_GUI.fth
     renderer 255 255 255 255 SDL_SetRenderDrawColor
     clear-renderer
     clear_text_buf
+    clip_rect_check
     SDL_GetTicks64 to game_start_time
-
+    ['] handle_keydown is do_keyd
 \    begin
 \        do-event-loop
 \        game.update

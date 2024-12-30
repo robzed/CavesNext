@@ -203,6 +203,8 @@ create map width_x height_y * sizeof_MapRec * allot
     ~" Now the game.....       (v1.30)" ~cr
 ;
 
+: credits
+;
 
 \ - Room occupation by monsters - */
 \ Notice:
@@ -511,9 +513,9 @@ variable mon_hit_strength \ monster hit strength
 \ 
 : rmintro ( -- )
     ~cr
-    ~" You have " hp @ . ~" hit points and " gold @ . ~" gold" ~cr
-    multi @ 0= if ~" You are Level " level @ . ~cr then
-    ~" Here is a monster with " mons.hp . ~" hit points called a " .mons.name ~cr
+    ~" You have " hp @ ~. ~" hit points and " gold @ ~. ~" gold" ~cr
+    multi @ 0= if ~" You are Level " level @ ~. ~cr then
+    ~" Here is a monster with " mons.hp ~. ~" hit points called a " .mons.name ~cr
 ;
 
 
@@ -539,7 +541,7 @@ variable mon_hit_strength \ monster hit strength
     hp @ 1 < level @ 0= or if
       
         ~" You have died" ~cr
-        ~" You had " gold @ . ~" gold when you died" ~cr
+        ~" You had " gold @ ~. ~" gold when you died" ~cr
         ~" Press Y to play again, or type N to stop." ~cr
         ~" ? "
 
@@ -564,7 +566,7 @@ variable mon_hit_strength \ monster hit strength
 
 : mondeath ( -- ) 
   ~" The " .mons.name ~"  is Dead" ~cr
-  ~" You find " mons.gold . ~" Gold" ~cr ~cr
+  ~" You find " mons.gold ~. ~" Gold" ~cr ~cr
 
   gold @ mons.gold + gold !
   0 mons.hp!
@@ -574,31 +576,6 @@ variable mon_hit_strength \ monster hit strength
 : num_char ( c -- c flag )
     dup [CHAR] 0 >= 
     over [CHAR] 9 <= and
-;
-
-
-\ Allows input of a number
-\ @TODO: Add backspace character, and better editing?
-: innum-old ( -- n )
-    
-    \ first input has to be a number
-    ['] num_char C-input
-    dup ~emit
-
-    \ make it into a number
-    [CHAR] 0 - 
-
-    begin
-        begin
-            ~key num_char
-        while
-            dup ~emit
-            [CHAR] 0 - 
-            \ multiply the first digit by 10, then add the units
-            swap 10 * +
-        repeat
-    \ only finished if this is return character
-    13 = until
 ;
 
 \ Adjust the character string at c-addr1 by n characters. The resulting character string, specified 
@@ -698,7 +675,7 @@ create nbuff nbuff-size 1+ allot
             0 gold @ in_range false = if 
                 ~cr 
                 ~" Not Enough Money!!" ~cr
-                ~" Type zero not to heal" ~cr
+                ~" Type 0 (zero) not to heal" ~cr
                 drop -1
             then
         dup 0 >=
@@ -820,7 +797,7 @@ create nbuff nbuff-size 1+ allot
 
     dup [char] M = level @ 3 > and if
         ~cr ~cr
-        ~" There are " #mons @ . ~" monsters"
+        ~" There are " #mons @ ~. ~" monsters"
     then
     drop
     ~cr ~cr
@@ -858,11 +835,11 @@ create nbuff nbuff-size 1+ allot
 
 : do_cast ( -- )
     ~"  Cast spell" ~cr ~cr
-    1 spell@ if ~" Type 1 to cast " 1 .spell_name ~"  (" 1 spell@ . ~" left)" ~cr then
-    2 spell@ if ~" Type 2 to cast " 2 .spell_name ~"  (" 2 spell@ . ~" left)" ~cr then
-    3 spell@ if ~" Type 3 to cast " 3 .spell_name ~"  (" 3 spell@ . ~" left)" ~cr then
-    4 spell@ if ~" Type 4 to cast " 4 .spell_name ~"  (" 4 spell@ . ~" left)" ~cr then
-    5 spell@ if ~" Type 5 to cast " 5 .spell_name ~"  (" 5 spell@ . ~" left)" ~cr then
+    1 spell@ if ~" Type 1 to cast " 1 .spell_name ~"  (" 1 spell@ ~. ~" left)" ~cr then
+    2 spell@ if ~" Type 2 to cast " 2 .spell_name ~"  (" 2 spell@ ~. ~" left)" ~cr then
+    3 spell@ if ~" Type 3 to cast " 3 .spell_name ~"  (" 3 spell@ ~. ~" left)" ~cr then
+    4 spell@ if ~" Type 4 to cast " 4 .spell_name ~"  (" 4 spell@ ~. ~" left)" ~cr then
+    5 spell@ if ~" Type 5 to cast " 5 .spell_name ~"  (" 5 spell@ ~. ~" left)" ~cr then
     ~" Type 6 to not cast a spell" ~cr
 
     begin
@@ -951,12 +928,12 @@ create nbuff nbuff-size 1+ allot
     mons.hp + hp @ > if
       
       hp @ mon_hit_strength @ - hp !
-      ~" The " .mons.name ~"  hits you for " mon_hit_strength @ . 
+      ~" The " .mons.name ~"  hits you for " mon_hit_strength @ ~. 
       
     else
       
       mons.hp hit_strength @ - mons.hp!
-      ~" You hit the " .mons.name ~"  for " hit_strength @ .
+      ~" You hit the " .mons.name ~"  for " hit_strength @ ~.
     then
 
     mons.hp 1 < if
@@ -983,9 +960,9 @@ create nbuff nbuff-size 1+ allot
 
     gold @ 2000 + gold !
     true_level @ 1+ true_level !
-    ~cr ~cr ~" You completed the game with " gold @  . ~" gold pieces." ~cr
-    ~" You have your levels restored and are at the ultimate level, " true_level @ . ~" ."
-    ~cr ~" You had " hp @ . ~" hps at the end." ~cr ~cr
+    ~cr ~cr ~" You completed the game with " gold @  ~. ~" gold pieces." ~cr
+    ~" You have your levels restored and are at the ultimate level, " true_level @ ~. ~" ."
+    ~cr ~" You had " hp @ ~. ~" hps at the end." ~cr ~cr
     ~" CONGRATULATIONS!!!!  (Tell Rob!!!)" ~cr ~cr
 
 
