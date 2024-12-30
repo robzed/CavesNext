@@ -14,6 +14,7 @@
 \ Make a window title with a zero terminator for C-based SDL call
 256 value WINDOW_WIDTH
 192 value WINDOW_HEIGHT
+2 value PIXEL_SCALE
 
 0 VALUE exit-value
 NULL VALUE window
@@ -56,6 +57,7 @@ CREATE game_event SDL_Event ALLOT
         game_event SDL_PollEvent if
             game_event SDL_Event-type u32@
             \ ." <<event type =" . cr
+            drop
         then
         1 sdl_delay
     loop
@@ -88,7 +90,8 @@ CREATE game_event SDL_Event ALLOT
         S" Error initializing SDL: " .SDL_error
     THEN
 
-    window_title SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED WINDOW_WIDTH WINDOW_HEIGHT window_flags
+    window_title SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED 
+    WINDOW_WIDTH PIXEL_SCALE * WINDOW_HEIGHT PIXEL_SCALE * window_flags
     SDL_CreateWindow TO window
     window 0= IF 
         S" Error creating Window: " .SDL_error
