@@ -170,8 +170,8 @@ defer do_keyd
 ;
 
 
-\ clear the screen
-: clear-screen ( -- )
+\ clear the renderer
+: clear-renderer ( -- )
     renderer SDL_RenderClear \ DROP
     if
         ." Error clearing renderer" cr

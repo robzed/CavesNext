@@ -36,17 +36,19 @@ NULL value font-tex
 \
 \ ;
 
+defer keystep
+
 8 constant CHAR_WIDTH
 8 constant CHAR_HEIGHT
 
-: calc_destrect ( -- )
+: calc_destrect ( x y -- )
     \ set position of the text
-    textx CHAR_WIDTH *  
-        PIXEL_SCALE *
-        text_destrect SDL_Rect-x u32!
-    texty CHAR_HEIGHT * 
+    ( y ) CHAR_HEIGHT * 
         PIXEL_SCALE *
         text_destrect SDL_Rect-y u32!
+    ( x ) CHAR_WIDTH *  
+        PIXEL_SCALE *
+        text_destrect SDL_Rect-x u32!
     CHAR_WIDTH  PIXEL_SCALE * text_destrect SDL_Rect-w u32!
     CHAR_HEIGHT PIXEL_SCALE * text_destrect SDL_Rect-h u32!
 ;
@@ -57,7 +59,7 @@ NULL value font-tex
     bl -    \ 32 is first printable character
     dup
 
-        5 and   \ 32 characters per row
+        $1F and \ 32 characters per row
         8 *     \ 8 pixels per character
     text_srcrect SDL_Rect-x u32!
 
@@ -77,10 +79,10 @@ NULL value font-tex
         SDL_Rect-h u32@ . ." h "
 ;
 
-: show_character ( c -- )
+: show_character ( x y c -- )
     calc_srcrect
     calc_destrect
-\    renderer font-tex NULL NULL SDL_RenderCopy if
+
     renderer font-tex text_srcrect text_destrect SDL_RenderCopy if
         ." Error rendering text: " SDL_GetError ctype cr
     then
@@ -89,7 +91,42 @@ NULL value font-tex
 24 constant NUM_LINES
 32 constant NUM_COLUMNS
 
-\ create text_buffer NUM_LINES NUM_COLUMNS * allot
+create text_buffer NUM_LINES NUM_COLUMNS * allot
+
+: check_xy { x y caddr u -- }
+    y 0< 
+        y NUM_LINES >= or
+            x 0< or
+                x NUM_COLUMNS >= or
+    if
+        ." Out of range " textx . texty . cr
+        caddr u type 
+        ."  Return stack " r@ . cr
+        .s abort
+    then
+;
+
+: text_buf! ( c -- )
+    textx texty S" text_buf!" check_xy
+    text_buffer texty NUM_COLUMNS * + textx + c!
+;
+
+: clear_text_buf text_buffer NUM_LINES NUM_COLUMNS * bl fill ;
+
+: text_buf@ { x y -- c }
+    x y S" text_buf@" check_xy
+    text_buffer y NUM_COLUMNS * + x + c@
+;
+
+: render_text_buf
+    NUM_LINES 0 ?do
+        NUM_COLUMNS 0 ?do
+            i j 2dup
+            text_buf@ ( x y x y -- x y c )
+            dup bl <> if show_character else drop 2drop then
+        loop
+    loop
+;
 
 \ : scroll_y
 \    NUM_LINES 1- 1 ?do
@@ -102,28 +139,35 @@ NULL value font-tex
 \    bl fill  ( addr u -- ) 
 \ ;
 
+: scroll? 
+        texty NUM_LINES >= if
+            ." scroll " cr
+            \ NUM_LINES 1- to texty
+            \ scroll_y
+            0 to texty
+            clear_text_buf
+        then
+;
+
 : text_step_1
     textx 1+ to textx
     textx NUM_COLUMNS >= if
-        textx 0 to textx
+        ." new line " cr
+               0 to textx
         texty 1+ to texty
-        texty NUM_LINES >= if
-            NUM_LINES 1- to texty
-            \ scroll_y
-            0 to texty
-        then
+        scroll?
     then
+;
+: at_xy { x y -- }
+    x y S" at_xy" check_xy
+    x textx !
+    y texty !
 ;
 
 : ~emit ( c -- )
-    dup 
+    dup text_buf!
     emit
-    show_character
-    \ text_buffer texty NUM_COLUMNS * + textx + c!
     text_step_1
-    ." x = " textx . ." y = " texty . cr
-    ." dest "text_destrect .SDL_Rect
-    ." src " text_srcrect .SDL_Rect    
 ;
 
 : ~type ( c-addr u -- )
@@ -148,13 +192,16 @@ NULL value font-tex
 : ~cr
     0 to textx
     texty 1+ to texty
+    scroll? 
     cr
 ;
 
 variable loopc
 
 : ~key ( -- key | -1 for quit )
+    render_text_buf
     show_screen
+    clear-renderer
     begin
         do-event-loop
         \ could do special updates while waiting for key here
@@ -166,8 +213,17 @@ variable loopc
     quit_flag if -1 else key then
 ;
 
+: (keystep)
+    ." [[[]]]   x y = " textx . texty .
+    .s
+    ~key drop
+;
+
+' (keystep) is keystep
+
 : ~accept 
     accept
+
 ;
 
 include caves130_GUI.fth
@@ -193,10 +249,12 @@ include caves130_GUI.fth
     THEN
     load-font
 
-    SDL_GetTicks64 to game_start_time
     false to quit_flag
     renderer 255 255 255 255 SDL_SetRenderDrawColor
-    clear-screen
+    clear-renderer
+    clear_text_buf
+    SDL_GetTicks64 to game_start_time
+
 \    begin
 \        do-event-loop
 \        game.update
@@ -209,9 +267,9 @@ include caves130_GUI.fth
 \    key? quit_flag or until
 
     \ This does the whole game
-    \ caves_main
-    [char] A ~emit ~cr
-    ~key .
+    caves_main
+    \ [char] A ~emit ~cr
+    \ ~key .
     ." Exiting (loop count = " loopc @ . ." ) " cr
     ." Average frame time = " SDL_GetTicks64 game_start_time - loopc @ / . ." ms" cr
     .frame_stats
