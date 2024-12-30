@@ -608,17 +608,6 @@ variable mon_hit_strength \ monster hit strength
     false
 ;
 
-\ ACCEPT a n1 --- n2
-\ Transfers characters from the input terminal to the address a for n1 location or until receiving a 0x13 “CR”
-\ character. A 0x00 “null” character is added. It leaves on TOS n2 as the actual length of the received string. More, n2 is
-\ also copied in SPAN user variable. See also QUERY.
-
-\ accept ( c-addr +n1 – +n2  ) core “accept”
-\ 
-\ Get a string of up to n1 characters from the user input device and store it at c-addr. n2 is the length of the 
-\ received string. The user indicates the end by pressing RET. Gforth supports all the editing functions available on 
-\ the Forth command line (including history and word completion) in accept. 
-
 10 constant nbuff-size
 create nbuff nbuff-size 1+ allot
 

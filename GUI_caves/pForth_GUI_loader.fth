@@ -172,14 +172,14 @@ true value enable_pixel_scroll
                     CHAR_HEIGHT 0 ?do
                         I negate to pixel_y_offset
                         make_picture
-                        20 SDL_Delay
+                        10 SDL_Delay
                     loop
                     0 to pixel_y_offset
                 then
                 NUM_LINES 1- to texty
                 scroll_y
                 make_picture
-                20 SDL_Delay
+                10 SDL_Delay
                 \ ." Scroll?" key
             else
                 0 to texty
