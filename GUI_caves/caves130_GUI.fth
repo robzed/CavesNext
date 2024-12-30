@@ -656,7 +656,7 @@ create nbuff nbuff-size 1+ allot
         0 \ dummy value to be dropped first time
         begin
             drop
-            ~cr ~" Type Hit points to be healed: "
+            ~cr ~" Enter Hit points to be healed: "
 
             innum
 
@@ -823,6 +823,13 @@ create nbuff nbuff-size 1+ allot
     drop true
 ;
 
+: in_digit ( -- n)
+    begin
+        ~key [char] 0 -
+        dup 0 >= over 9 <= and
+    until
+;
+
 : do_cast ( -- )
     ~"  Cast spell" ~cr ~cr
     1 spell@ if ~" Type 1 to cast " 1 .spell_name ~"  (" 1 spell@ ~. ~" left)" ~cr then
@@ -834,7 +841,7 @@ create nbuff nbuff-size 1+ allot
 
     begin
         ~cr ~" Which Magic Spell? "
-        innum
+        in_digit
         dup _valid_spell invert-flag
      while
         drop
