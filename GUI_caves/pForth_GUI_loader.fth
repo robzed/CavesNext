@@ -344,10 +344,41 @@ key_array_max_size array key_array
 
 ' (keystep) is keystep
 
-: ~accept 
-    \ @TODO - implement
-    ." *** Accept not implemented yet!! *** "
-    accept
+\ ACCEPT a n1 --- n2
+\ Transfers characters from the input terminal to the address a for n1 location or until receiving a 0x13 “CR”
+\ character. A 0x00 “null” character is added. It leaves on TOS n2 as the actual length of the received string. More, n2 is
+\ also copied in SPAN user variable. See also QUERY.
+
+\ accept ( c-addr +n1 – +n2  ) core “accept”
+\ 
+\ Get a string of up to n1 characters from the user input device and store it at c-addr. n2 is the length of the 
+\ received string. The user indicates the end by pressing RET. Gforth supports all the editing functions available on 
+\ the Forth command line (including history and word completion) in accept. 
+
+: ~accept { caddr n1 | numchars -- n2 }
+    0 -> numchars
+    begin
+        ~key 
+        .s
+        n1 if \ only allow if n1 > 0
+            dup bl >= 
+                over 128 <
+                    and if
+                        dup ~emit
+                        dup caddr ! 
+                        -1 +-> n1
+                        1 +-> numchars
+                    then
+        then
+        .s
+        dup 13 = over 10 = or if
+            drop numchars
+            exit
+        then
+        .s
+        ." Key = " dup . cr
+        drop
+    again
 ;
 
 include caves130_GUI.fth
