@@ -14,7 +14,7 @@
 \ Make a window title with a zero terminator for C-based SDL call
 256 value WINDOW_WIDTH
 192 value WINDOW_HEIGHT
-2 value PIXEL_SCALE
+4 value PIXEL_SCALE
 
 0 VALUE exit-value
 NULL VALUE window
