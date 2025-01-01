@@ -359,12 +359,10 @@ key_array_max_size array key_array
     SDL_GetTicks64 + 
     begin
         interframe
-
-        key?
-            quit_flag or 
-                key_array_keys? or 
-                    SDL_GetTicks64 over >= or
+        SDL_GetTicks64 over >=
+            ~key? or
     until
+    drop
 ;
 
 

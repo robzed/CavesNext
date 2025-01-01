@@ -200,34 +200,46 @@ create map width_x height_y * sizeof_MapRec * allot
 
 : instructions
     255 255 128 set_bg
-    clear_screen
-    S" - Instructions -" center_text ~cr
-    ~cr
-    ~" You are in a dungeon" ~cr
-    S" called the Caves of Chaos." center_text ~cr
-    S" A dangerous place."  right_adjust ~cr
-    ~cr
-    S" It's a 10 by 10 set of rooms" center_text ~cr
-    ~cr
-    ~" Defeat all the monsters " ~cr
-    S" in the caves to win." right_adjust ~cr
-    ~cr
-    ~" You can move North, South, " ~cr
-    S" East or West," right_adjust ~cr
-    S"  after defeating a monster." center_text ~cr
-    ~cr
-\               11111111112222222222333
-\      12345678901234567890123456789012
-    ~" You can heal yourself," ~cr
-    S" but it costs 10 gold." right_adjust ~cr
-    ~cr
-    ~" Use your spells carefully." ~cr
-    ~cr
-    ~" Tackle monsters in the right" ~cr
-    S" order to win all fights." right_adjust ~cr
-    ~cr
-    S" (press a key to continue)" center_text
-    ~key
+    true
+    begin
+        clear_screen
+        S" - Instructions -" center_text ~cr
+        ~cr
+        ~" You are in a dungeon" ~cr
+        S" called the Caves of Chaos." center_text ~cr
+        S" A dangerous place."  right_adjust ~cr
+        ~cr
+        S" It's a 10 by 10 set of rooms" center_text ~cr
+        ~cr
+        ~" Defeat all the monsters " ~cr
+        S" in the caves to win." right_adjust ~cr
+        ~cr
+        ~" You can move North, South, " ~cr
+        S" East or West," right_adjust ~cr
+        S"  after defeating a monster." center_text ~cr
+        ~cr
+    \               11111111112222222222333
+    \      12345678901234567890123456789012
+        ~" You can heal yourself," ~cr
+        S" but it costs 10 gold." right_adjust ~cr
+        ~cr
+        ~" Use your spells carefully." ~cr
+        ~cr
+        ~" Tackle monsters in the right" ~cr
+        S" order to win all fights." right_adjust ~cr
+        ~cr
+        if
+            S" (press a key to continue)" center_text
+            false
+        else
+            true
+        then
+        render_all
+        1000 timed_wait
+        ~key?
+    until
+    ~key drop
+    drop
 ;
 
 300 value wait_cr_time
@@ -242,7 +254,7 @@ create map width_x height_y * sizeof_MapRec * allot
 : credits_scroller ( -- )
     128 255 255 set_bg
     clear_screen
-    300 to wait_cr_time
+    100 to wait_cr_time
 
     0 NUM_LINES 1- at_xy
     ~" Caves Of Chaos" ~cr wait_cr if exit then
