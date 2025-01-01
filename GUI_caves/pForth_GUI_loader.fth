@@ -190,8 +190,7 @@ true value enable_pixel_scroll
         then
 ;
 
-: text_step_1
-    textx 1+ to textx
+: text_wrap?
     textx NUM_COLUMNS >= if
         0 to textx
         texty 1+ to texty
@@ -207,10 +206,11 @@ true value enable_pixel_scroll
 false value print_to_terminal
 
 : ~emit ( c -- )
+    text_wrap?
     print_to_terminal if dup emit then
 
     text_buf!
-    text_step_1
+    textx 1+ to textx
 ;
 
 : ~type ( c-addr u -- )
@@ -296,6 +296,8 @@ key_array_max_size array key_array
     scancode SDL_SCANCODE_SPACE = IF
         \ ." Pressed Space - Change colour" cr
         random-color
+        clear-renderer
+        render_all
     THEN
     keycode key_array_push
 ;
@@ -431,9 +433,16 @@ key_array_max_size array key_array
 ;
 
 : clear_screen
+    clear-renderer  \ not strictly necessary
     0 to textx
     0 to texty
     clear_text_buf
+;
+
+: set_bg { r g b -- }
+    renderer r g b 255 SDL_SetRenderDrawColor
+    if ." Error SDL_SetRenderDrawColor" . cr then
+    \ set border colour as well on Spectrum Next
 ;
 
 include caves130_GUI.fth
@@ -458,6 +467,8 @@ CREATE clipRect SDL_Rect ALLOT
     ." Clip rect = " clipRect .SDL_Rect
     cr
 ;
+
+
 
 : run
     0 loopc !
