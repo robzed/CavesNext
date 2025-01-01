@@ -244,19 +244,26 @@ create map width_x height_y * sizeof_MapRec * allot
     clear_screen
     300 to wait_cr_time
 
+    0 NUM_LINES 1- at_xy
     ~" Caves Of Chaos" ~cr wait_cr if exit then
     ~"    A little Fantasy RPG"  wait_cr if exit then
     S" ... or something like that!!!" right_adjust ~cr wait_cr if exit then
-    ~"                       (v1.30G)" ~cr
-
-    ~" Copyright 1990-2025 Rob (Zed) Probin (The road goes on forever....)" wait_cr if exit then
-    ~" CONTACT: rob  or  http://?????????" wait_cr if exit then
-    ~cr ~cr
+    S" (v1.30G)" right_adjust wait_cr if exit then
+                             wait_cr if exit then
+\               11111111112222222222333
+\      12345678901234567890123456789012
+    ~" Copyright 1990-2025 Rob Probin" wait_cr if exit then
+    S" (The road goes on forever....)" right_adjust wait_cr if exit then
+                                    wait_cr if exit then
+    ~" CONTACT: rob http://??????" wait_cr if exit then
+    wait_cr if exit then
+    wait_cr if exit then
                                wait_cr if exit then
     ~" Written and design by"  wait_cr if exit then
                                wait_cr if exit then
     ~"     Rob Probin"         wait_cr if exit then
-    ~cr
+    wait_cr if exit then
+    wait_cr if exit then
 
     10 to wait_cr_time
 \               11111111112222222222333
@@ -264,20 +271,36 @@ create map width_x height_y * sizeof_MapRec * allot
     ~" Thanks to: "            wait_cr if exit then
     ~"     Stu, and the rest of the" wait_cr if exit then
     S" gang." right_adjust wait_cr if exit then
+    ~cr
+    ~" Fonts - ZX Origins from" wait_cr if exit then
+    S" https://damieng.com/typography/" right_adjust wait_cr if exit then
                             wait_cr if exit then
                             wait_cr if exit then
-    ~" History:"  ~cr wait_cr if exit then
-    ~" Original written in GFA Basic V2 (by Zed)"  wait_cr if exit then
-    ~" Original version in C (7/5/92 & 12/2/93-Release modification" wait_cr if exit then
-    ~" Mac OS X version 13th August 2001." wait_cr if exit then
+
+    ~" History:"  wait_cr if exit then
+                 wait_cr if exit then
+\               11111111112222222222333
+\      12345678901234567890123456789012
+    ~" Original written in GFA Basic V2"  wait_cr if exit then
+    S" on an Atari ST in 1990" right_adjust wait_cr if exit then
+                                        wait_cr if exit then
+    ~" Original version in C (7/5/92 &" wait_cr if exit then
+    S" 12/2/93-Release modification)" right_adjust wait_cr if exit then
+                                    wait_cr if exit then
+    ~" Mac OS X version 13th Aug 2001" wait_cr if exit then
+                                    wait_cr if exit then
     ~" Lua version 27th Feb 2019." wait_cr if exit then
+    S" (Forlorn Fox Easter Egg)" right_adjust wait_cr if exit then
+                                    wait_cr if exit then
     ~" C99 port - 4 May 2024"            wait_cr if exit then
-    ~" gForth version May to July 2024"  wait_cr if exit then
-    ~" vForth Next version August 2024"  wait_cr if exit then  
+                                    wait_cr if exit then
+    ~" Forth port May to August 2024"  wait_cr if exit then
+                                    wait_cr if exit then
+    S" (to be vForth Next version)"  right_adjust wait_cr if exit then  
                                           wait_cr if exit then
     ~" pForth GUI version December 2024" wait_cr if exit then
-    S" - January 2025." right_adjust wait_cr if exit then
-
+    S" to January 2025" right_adjust wait_cr if exit then
+    
     NUM_LINES 1- 0 ?do
         wait_cr if unloop exit then
     loop
