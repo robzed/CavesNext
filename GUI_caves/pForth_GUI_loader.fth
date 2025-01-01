@@ -8,6 +8,8 @@
 \ Put the SDL folder inside this folder under the name SDL2. 
 \ SDL2 bindings for Gforht are kindly Zlib licenses - so no worries.
 
+ANEW TASK-FORTH_GUI_LOADER.FTH
+
 include speccy_emu.fth
 
 \ convert a character to support case
@@ -240,6 +242,7 @@ false value print_to_terminal
 ;
 
 : ~space ( -- ) bl ~emit ;
+: ~spaces ( n -- ) 0 ?do ~space loop ;
 
 : (~.) ( n -- ) dup abs 0 <# #s rot sign #> ;
 : ~. ( n -- ) (~.)  ~type ~space ;
@@ -340,6 +343,29 @@ key_array_max_size array key_array
     then
 ;
 
+: ~key? ( -- flag)
+    key_array_keys? key? or
+
+    quit_flag if 
+        \ bye = caves130_GUI.fth doesn't handle quit properly - so just abort
+        close_down
+        quit
+    then
+;
+
+: timed_wait ( n -- )
+    SDL_GetTicks64 + 
+    begin
+        interframe
+
+        key?
+            quit_flag or 
+                key_array_keys? or 
+                    SDL_GetTicks64 over >= or
+    until
+;
+
+
 : (keystep)
     ." [[[]]]   x y = " textx . texty .
     .s
@@ -404,6 +430,12 @@ key_array_max_size array key_array
     again
 ;
 
+: clear_screen
+    0 to textx
+    0 to texty
+    clear_text_buf
+;
+
 include caves130_GUI.fth
 
 \ : game.update
@@ -417,9 +449,6 @@ include caves130_GUI.fth
 \ why is this not in SDL2 from SDL_image.fs ??? 
 #2	constant IMG_INIT_PNG
 
-: clear_screen
-    clear_text_buf
-;
 
 CREATE clipRect SDL_Rect ALLOT
 : clip_rect_check
