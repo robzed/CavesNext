@@ -290,6 +290,10 @@ key_array_max_size array key_array
         true to quit_flag
 \        SDL_MESSAGEBOX_INFORMATION S\" Key Pressed\x00" S\" Key Pressed\x00" window SDL_ShowSimpleMessageBox drop
     THEN
+    scancode SDL_SCANCODE_SPACE = IF
+        \ ." Pressed Space - Change colour" cr
+        random-color
+    THEN
     keycode key_array_push
 ;
 

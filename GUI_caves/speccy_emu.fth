@@ -8,6 +8,8 @@
 \ Programming notes:
 \    * underscore is internal to the file (like a private variable in Python)
 
+ANEW SPECCY_EMU.FTH
+
 \ Constants
 0 CONSTANT NULL
 
@@ -140,14 +142,14 @@ defer do_keyd
             \ DUP SDL_SCANCODE_ESCAPE = IF
             \    true to quit_flag
             \ THEN
-            DUP SDL_SCANCODE_SPACE = IF
-                ." Pressed Space - Change colour" cr
-                random-color
-            else
+            \ DUP SDL_SCANCODE_SPACE = IF
+            \    ." Pressed Space - Change colour" cr
+            \    random-color
+            \ else
                 \ ." Key pressed " dup . cr
                 game_event SDL_KeyboardEvent-keysym SDL_Keysym-sym s32@ 
                 do_keyd
-            THEN
+            \ THEN
             \ From slouken https://discourse.libsdl.org/t/scancode-vs-keycode/32860/5
             \ SDL scancodes are used for games that require position independent key input, e.g. an FPS that uses WASD 
             \ for movement should use scancodes because the position is  important (i.e. the key position shouldn’t 
