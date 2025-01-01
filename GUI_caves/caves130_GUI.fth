@@ -1,11 +1,11 @@
 \ GUI Version Copright (c) 2024 Rob Probin
-\ Written 27-29 December 2024 by Rob Probin
+\ Written 27 December 2024 - 1 Jan 2025 by Rob Probin
 \ GPLv3 license
 
 \ * CAVES OF CHAOS [RELEASE VERSION]
 \ * ===============\-----> A little RPG
 \ *
-\ *    by Rob. (ZED) Probin (c) Copyright 1990/91/92
+\ *    by Rob. (ZED) Probin (c) Copyright 1990/91/92 - 2025
 \ *
 \ *    Converted to C on 5/7/92.
 \ *    Original version in GFA Basic v2
@@ -16,6 +16,7 @@
 \ *           Has this bug always been in?
 \ *   v1.29 - Rob Probin, ported to Lua 27 Feb 2019
 \ *   v1.30 - Rob Probin, ported to vForth-Next 4 May 2024
+\ *   v1.30G - Rob Probin, graphical version 27 December 2024, 1 Jan 2025
 \
  
 \ * NOTE ABOUT STRUCTURE
@@ -185,26 +186,112 @@ create map width_x height_y * sizeof_MapRec * allot
 \ * - Screen start section -
 \ *
 
-: message ( -- )
-    ~cr ~cr
-    ~" Caves Of Chaos      -      A little Fantasy RPG" ~cr
-    ~"          ... or something like that!!!" ~cr ~cr
-    ~" Copyright 1990-2024 Rob (Zed) Probin (The road goes on forever....)" ~cr
-    ~" CONTACT: rob  or  http://robprobin.com" ~cr
-    ~" Copies of this program may be made for NO CHARGE" ~cr
-    ~" SHAREWARE -- CHARGE FOR USE => Spread EVERYWHERE" ~cr
-    ~" Original written in GFA Basic V2 (by Zed)" ~cr
-    ~" Original version in C (7/5/92 & 12/2/93-Release modification" ~cr
-    ~" Mac OS X version 13th August 2001." ~cr
-    ~" Lua version 27th Feb 2019." ~cr
-    ~" C99 port - 4 May 2024." ~cr
-    ~" gForth version May to July 2024." ~cr
-    ~" vForth Next version August 2024." ~cr ~cr
-    ~" Now the game.....       (v1.30)" ~cr
+
+: center_text { caddr u -- }
+    NUM_COLUMNS u - 2/ 0 max ~spaces
+    caddr u ~type
 ;
 
-: credits
+: right_adjust { caddr u -- }
+    NUM_COLUMNS u - 0 max ~spaces
+    caddr u ~type
 ;
+
+: instructions
+    clear_screen
+    S" Instructions" center_text ~cr
+    ~cr
+    ~" You are in a dungeon" ~cr
+    S" called the Caves of Chaos." center_text ~cr
+    S" A dangerous place."  right_adjust ~cr
+    S" It's a 10 by 10 set of rooms" center_text ~cr
+    ~cr
+    ~" Defeat all the monsters " ~cr
+    S" in the caves to win." right_adjust ~cr
+    ~cr
+    ~" You can move North, South, " ~cr
+    S" East or West," center_text ~cr
+    S"  after defeating a monster." right_adjust ~cr
+\               11111111112222222222333
+\      12345678901234567890123456789012
+    ~" You can heal yourself," ~cr
+    S" but it costs 10 gold." right_adjust ~cr
+    ~cr
+    ~" Use your spells carefully." ~cr
+    ~cr
+    ~" Tackle monsters in the right" ~cr
+    S" order to all fights" right_adjust
+    ~key
+;
+
+: wait_cr ( -- flag )
+    ~cr
+    make_picture
+    300 timed_wait
+    ~key? dup if key drop then
+;
+
+: credits_scroller ( -- )
+    clear_screen
+    ~" Caves Of Chaos" ~cr wait_cr if exit then
+    ~"    A little Fantasy RPG"  wait_cr if exit then
+    S" ... or something like that!!!" right_adjust ~cr wait_cr if exit then
+    ~"                       (v1.30G)" ~cr
+
+    ~" Copyright 1990-2025 Rob (Zed) Probin (The road goes on forever....)" wait_cr if exit then
+    ~" CONTACT: rob  or  http://?????????" wait_cr if exit then
+    ~cr ~cr
+                               wait_cr if exit then
+    ~" Written and design by"  wait_cr if exit then
+                               wait_cr if exit then
+    ~"     Rob Probin"         wait_cr if exit then
+    ~" Thanks to: "            wait_cr if exit then
+    ~"     Stu, Paul, and the rest of the gang"  wait_cr if exit then
+                            wait_cr if exit then
+                            wait_cr if exit then
+    ~" History:"  ~cr wait_cr if exit then
+    ~" Original written in GFA Basic V2 (by Zed)"  wait_cr if exit then
+    ~" Original version in C (7/5/92 & 12/2/93-Release modification" wait_cr if exit then
+    ~" Mac OS X version 13th August 2001." wait_cr if exit then
+    ~" Lua version 27th Feb 2019." wait_cr if exit then
+    ~" C99 port - 4 May 2024."            wait_cr if exit then
+    ~" gForth version May to July 2024."  wait_cr if exit then
+    ~" vForth Next version August 2024."  wait_cr if exit then  
+                                          wait_cr if exit then
+    ~" pForth GUI version December 2024." wait_cr if exit then
+    ~"                   - January 2025."  wait_cr if exit then
+
+    NUM_LINES 1- 0 ?do
+        wait_cr if unloop exit then
+    loop
+;
+
+: main_menu ( -- )
+    begin
+        clear_screen
+        0 2 at_xy 
+        S" Caves Of Chaos" center_text ~cr
+        S"    A little Fantasy RPG" center_text ~cr
+        ~cr ~cr
+        S" 1 - Play game" center_text ~cr ~cr
+        S" 2 - Credits" center_text ~cr ~cr
+        S" 3 - Game Hints" center_text ~cr ~cr
+        0 NUM_LINES 3 - at_xy 
+        S\" \x7F 1990-2025 Rob Probin" center_text ~cr
+
+        ~key
+        dup [char] 2 = if
+            credits_scroller
+        then
+        dup [char] 3 = if
+            instructions
+        then
+
+        [char] 1 =
+    until    
+;
+
+
 
 \ - Room occupation by monsters - */
 \ Notice:
@@ -1143,7 +1230,7 @@ create nbuff nbuff-size 1+ allot
 : caves_main ( -- )
     begin
         \ ************* start (new game) *************
-        message
+        main_menu
         setmap      \ map is Monster in room data
         game_data_setup
 

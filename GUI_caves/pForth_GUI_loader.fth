@@ -200,8 +200,8 @@ true value enable_pixel_scroll
 ;
 : at_xy { x y -- }
     x y S" at_xy" check_xy
-    x textx !
-    y texty !
+    x to textx
+    y to texty
 ;
 
 false value print_to_terminal
