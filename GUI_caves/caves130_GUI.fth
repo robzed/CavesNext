@@ -192,6 +192,7 @@ create map width_x height_y * sizeof_MapRec * allot
     caddr u ~type
 ;
 
+\ Probably should be from current x position...
 : right_adjust { caddr u -- }
     NUM_COLUMNS u - 0 max ~spaces
     caddr u ~type
@@ -229,16 +230,20 @@ create map width_x height_y * sizeof_MapRec * allot
     ~key
 ;
 
+300 value wait_cr_time
+
 : wait_cr ( -- flag )
     ~cr
     make_picture
-    300 timed_wait
+    wait_cr_time timed_wait
     ~key? dup if key drop then
 ;
 
 : credits_scroller ( -- )
     128 255 255 set_bg
     clear_screen
+    300 to wait_cr_time
+
     ~" Caves Of Chaos" ~cr wait_cr if exit then
     ~"    A little Fantasy RPG"  wait_cr if exit then
     S" ... or something like that!!!" right_adjust ~cr wait_cr if exit then
@@ -251,8 +256,14 @@ create map width_x height_y * sizeof_MapRec * allot
     ~" Written and design by"  wait_cr if exit then
                                wait_cr if exit then
     ~"     Rob Probin"         wait_cr if exit then
+    ~cr
+
+    10 to wait_cr_time
+\               11111111112222222222333
+\      12345678901234567890123456789012
     ~" Thanks to: "            wait_cr if exit then
-    ~"     Stu, Paul, and the rest of the gang"  wait_cr if exit then
+    ~"     Stu, and the rest of the" wait_cr if exit then
+    S" gang." right_adjust wait_cr if exit then
                             wait_cr if exit then
                             wait_cr if exit then
     ~" History:"  ~cr wait_cr if exit then
@@ -260,12 +271,12 @@ create map width_x height_y * sizeof_MapRec * allot
     ~" Original version in C (7/5/92 & 12/2/93-Release modification" wait_cr if exit then
     ~" Mac OS X version 13th August 2001." wait_cr if exit then
     ~" Lua version 27th Feb 2019." wait_cr if exit then
-    ~" C99 port - 4 May 2024."            wait_cr if exit then
-    ~" gForth version May to July 2024."  wait_cr if exit then
-    ~" vForth Next version August 2024."  wait_cr if exit then  
+    ~" C99 port - 4 May 2024"            wait_cr if exit then
+    ~" gForth version May to July 2024"  wait_cr if exit then
+    ~" vForth Next version August 2024"  wait_cr if exit then  
                                           wait_cr if exit then
-    ~" pForth GUI version December 2024." wait_cr if exit then
-    ~"                   - January 2025."  wait_cr if exit then
+    ~" pForth GUI version December 2024" wait_cr if exit then
+    S" - January 2025." right_adjust wait_cr if exit then
 
     NUM_LINES 1- 0 ?do
         wait_cr if unloop exit then
@@ -278,8 +289,9 @@ create map width_x height_y * sizeof_MapRec * allot
         clear_screen
         0 2 at_xy 
         S" Caves Of Chaos" center_text ~cr
+        ~cr
         S"    A little Fantasy RPG" center_text ~cr
-        ~cr ~cr
+        ~cr ~cr ~cr 
         S" 1 - Play game" center_text ~cr ~cr
         S" 2 - Credits" center_text ~cr ~cr
         S" 3 - Game Hints" center_text ~cr ~cr
