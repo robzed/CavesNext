@@ -286,6 +286,18 @@ key_array_max_size array key_array
     then
 ;
 
+: fix_numeric_keys ( c -- c)
+    dup SDLK_KP_1 = if drop SDLK_1 exit then
+    dup SDLK_KP_2 = if drop SDLK_2 exit then
+    dup SDLK_KP_3 = if drop SDLK_3 exit then
+    dup SDLK_KP_4 = if drop SDLK_4 exit then
+    dup SDLK_KP_5 = if drop SDLK_5 exit then
+    dup SDLK_KP_6 = if drop SDLK_6 exit then
+    dup SDLK_KP_7 = if drop SDLK_7 exit then
+    dup SDLK_KP_8 = if drop SDLK_8 exit then
+    dup SDLK_KP_9 = if drop SDLK_9 exit then
+    dup SDLK_KP_0 = if drop SDLK_0 exit then
+;
 
 : handle_keydown { scancode keycode -- }
     \ ." Keydown " scancode . keycode . cr
@@ -299,7 +311,9 @@ key_array_max_size array key_array
         clear-renderer
         render_all
     THEN
-    keycode key_array_push
+    keycode
+    fix_numeric_keys
+    key_array_push
 ;
 
 0 value game_start_time
@@ -328,12 +342,12 @@ key_array_max_size array key_array
         then
 ;
 
-: ~key ( -- key | -1 for quit )
+: ~key ( -- key | -1 forquit )
     render_all
     begin
         interframe
     key? quit_flag or key_array_keys? or until
-    
+
     quit_flag if 
         \ bye = caves130_GUI.fth doesn't handle quit properly - so just abort
         close_down
