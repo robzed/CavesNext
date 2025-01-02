@@ -319,7 +319,9 @@ create map width_x height_y * sizeof_MapRec * allot
 ;
 
 : main_menu ( -- )
+    0 \ fake key
     begin
+        drop \ clear key
         255 255 255 set_bg
         clear_screen
         0 2 at_xy 
