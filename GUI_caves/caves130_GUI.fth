@@ -248,7 +248,7 @@ create map width_x height_y * sizeof_MapRec * allot
     ~cr
     make_picture
     wait_cr_time timed_wait
-    ~key? dup if key drop then
+    ~key? dup if ~key drop then
 ;
 
 : credits_scroller ( -- )
