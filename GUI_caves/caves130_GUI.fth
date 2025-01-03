@@ -199,7 +199,7 @@ create map width_x height_y * sizeof_MapRec * allot
 ;
 
 : instructions
-    255 255 128 set_bg
+    255 255 128 set_drawcolour
     true
     begin
         clear_screen
@@ -252,7 +252,7 @@ create map width_x height_y * sizeof_MapRec * allot
 ;
 
 : credits_scroller ( -- )
-    128 255 255 set_bg
+    128 255 255 set_drawcolour
     clear_screen
     100 to wait_cr_time
 
@@ -318,13 +318,32 @@ create map width_x height_y * sizeof_MapRec * allot
     loop
 ;
 
+: mmborder
+        0 0 0 border.draw
+        NUM_COLUMNS 4 - 4 / 0 ?do
+            16 i 5 << + 0 1 border.draw
+            32 i 5 << + 0 2 border.draw
+            16 i 5 << + 192 16 - 13 border.draw
+            32 i 5 << + 192 16 - 14 border.draw
+        loop
+        256 16 - 0 3 border.draw
+        NUM_LINES 4 - 4 / 0 ?do
+            0 16 i 5 << + 4 border.draw
+            255 16 - 16 i 5 << + 7 border.draw
+            0 32 i 5 << + 8 border.draw
+            255 16 - 32 i 5 << + 11 border.draw
+        loop
+        0 192 16 - 12 border.draw
+        255 16 - 192 16 - 15 border.draw
+;
+
 : main_menu ( -- )
-    0 \ fake key
     begin
-        drop \ clear key
-        255 255 255 set_bg
+        255 255 255 set_drawcolour
         clear_screen
-        0 2 at_xy 
+        mmborder
+        0 3 at_xy 
+
         S" Caves Of Chaos" center_text ~cr
         ~cr
         S"    A little Fantasy RPG" center_text ~cr
@@ -468,7 +487,7 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
 
 \ debug command to show the map
 \ should be called sometime after setmap
-: .map
+: debug.map
     cr
     height_y 1+ 1 do
         width_x 1+ 1 do
@@ -476,6 +495,41 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
             i j .room_xy cr
         loop
     loop
+;
+
+: cell.draw { x y gr -- }
+    x 3 << y 3 << gr graphic.draw
+;
+
+: .grid ( -- )
+    \ top line
+    0 0 map_TL cell.draw
+    width_x 1- 1 do
+        i 0 map_TS cell.draw
+    loop
+    width_x 1- 0 map_TR cell.draw
+
+    \ middle section
+    height_y 1- 1 do
+        0 i map_LS cell.draw
+        width_x 1- 1 do
+            i j map_MID cell.draw
+        loop
+        width_x 1- i map_RS cell.draw
+    loop
+
+    \ bottom line
+    0 height_y 1- map_BL cell.draw
+    height_y 1- 1 do
+        i height_y 1- map_BS cell.draw
+    loop
+    width_x 1- height_y 1- map_BR cell.draw
+;
+: .map ( -- )
+    \ Add highlight
+    \ Add grid for map
+    .grid
+    \ Add monsters
 ;
 
 
@@ -648,7 +702,7 @@ variable mon_hit_strength \ monster hit strength
     ." room "
 ;
 \ Example:
-\ setmap DEBUG_ld_rooms .map
+\ setmap DEBUG_ld_rooms debug.map
 
 
 \ 
@@ -1210,9 +1264,11 @@ create nbuff nbuff-size 1+ allot
 
 : do_room ( -- game-state )
     begin
-
+        clear_screen
         \ ******* fight sequence repeat, same room **************
-
+        ['] .map is render_graphics
+        ." do_room " cr
+        0 10 at_xy
         rmintro     \ intro to room
 
         pdeath?	\ player death? (i 0=continue 1=goto start 2=stop)
@@ -1304,12 +1360,12 @@ create nbuff nbuff-size 1+ allot
     ." --------- TEST SETUP ---------" cr
     setmap
     \ DEBUG_ld_rooms
-    \ .map
+    \ debug.map
     game_data_setup
     goroom
     .player 
     rmintro
     1 hit_strength !
     1 mon_hit_strength !
-    \ .map   
+    \ debug.map   
 ;

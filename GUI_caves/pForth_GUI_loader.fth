@@ -30,13 +30,107 @@ CREATE text_destrect SDL_Rect ALLOT
 NULL value font-tex
 \ NULL value current_font_tex
 
-: load-font
+: load-font ( -- )
     renderer S\" ZX_Maverick/ZX_Maverick.png\x00" drop IMG_LoadTexture to font-tex
 ;
 
 \ : set-font ( fontaddr -- )
 \
 \ ;
+
+: .SDL_Rect ( addr -- )
+    ." SDL_Rect: "
+    dup SDL_Rect-x u32@ . ." x " 
+    dup SDL_Rect-y u32@ . ." y " 
+    dup SDL_Rect-w u32@ . ." w " 
+        SDL_Rect-h u32@ . ." h "
+;
+
+\ List of graphics
+0 constant border_whole
+
+1 constant map_TL
+2 constant map_TR
+3 constant map_BL
+4 constant map_BR
+
+5 constant map_LS
+6 constant map_RS
+7 constant map_TS
+8 constant map_BS
+
+9 constant map_MID
+
+border_whole 1+ constant number_of_graphics
+
+number_of_graphics array gr_array
+
+: load_graphics ( -- )
+    renderer S\" Graphics/mmborder.png\x00" drop IMG_LoadTexture border_whole gr_array !
+
+    renderer S\" Graphics/corner_es.png\x00" drop IMG_LoadTexture map_TL gr_array !
+    renderer S\" Graphics/corner_sw.png\x00" drop IMG_LoadTexture map_TR gr_array !
+    renderer S\" Graphics/corner_ne.png\x00" drop IMG_LoadTexture map_BL gr_array !
+    renderer S\" Graphics/corner_nw.png\x00" drop IMG_LoadTexture map_BR gr_array !
+
+    renderer S\" Graphics/side_nes.png\x00" drop IMG_LoadTexture map_LS gr_array !
+    renderer S\" Graphics/side_nws.png\x00" drop IMG_LoadTexture map_RS gr_array !
+    renderer S\" Graphics/side_esw.png\x00" drop IMG_LoadTexture map_TS gr_array !
+    renderer S\" Graphics/side_new.png\x00" drop IMG_LoadTexture map_BS gr_array !
+
+    renderer S\" Graphics/open4.png\x00" drop IMG_LoadTexture map_MID gr_array !
+    number_of_graphics 0 ?do
+        I gr_array 0= if ." Error loading graphics " I . cr then
+    loop
+;
+
+: destroy_graphics ( -- )
+    number_of_graphics 0 ?do
+        I gr_array dup if SDL_DestroyTexture else drop then
+    loop
+;
+
+: graphic.draw { x y gr -- }
+    x PIXEL_SCALE * text_destrect SDL_Rect-x u32!
+    y PIXEL_SCALE * text_destrect SDL_Rect-y u32!
+    8 PIXEL_SCALE * text_destrect SDL_Rect-w u32!
+    8 PIXEL_SCALE *  text_destrect SDL_Rect-h u32!
+
+    renderer gr gr_array @ NULL text_destrect SDL_RenderCopy if
+        ." Error rendering graphic: " SDL_GetError ctype cr
+    then
+;
+: gr.fill { x y w h -- }
+    x PIXEL_SCALE * text_destrect SDL_Rect-x u32!
+    y PIXEL_SCALE * text_destrect SDL_Rect-y u32!
+    w PIXEL_SCALE * text_destrect SDL_Rect-w u32!
+    h PIXEL_SCALE * text_destrect SDL_Rect-h u32!
+    renderer text_destrect SDL_RenderFillRect
+;
+
+
+: border.draw { x y gr -- }
+    \ for border items it's a bit different
+    \ calculate 
+    gr 3 and 4 << text_srcrect SDL_Rect-x u32!
+    gr $c and 2 << text_srcrect SDL_Rect-y u32!
+    16 text_srcrect SDL_Rect-w u32!
+    16 text_srcrect SDL_Rect-h u32!
+    \ text_srcrect .SDL_Rect
+
+    x PIXEL_SCALE * text_destrect SDL_Rect-x u32!
+    y PIXEL_SCALE * text_destrect SDL_Rect-y u32!
+    16 PIXEL_SCALE * text_destrect SDL_Rect-w u32!
+    16 PIXEL_SCALE *  text_destrect SDL_Rect-h u32!
+    \ text_destrect .SDL_Rect
+
+    renderer border_whole gr_array @ text_srcrect text_destrect SDL_RenderCopy if
+        ." Error rendering graphic: " SDL_GetError ctype cr
+    then
+;
+
+
+
 
 defer keystep
 
@@ -75,13 +169,7 @@ defer keystep
     CHAR_HEIGHT text_srcrect SDL_Rect-h u32!
 ;
 
-: .SDL_Rect ( addr -- )
-    ." SDL_Rect: "
-    dup SDL_Rect-x u32@ . ." x " 
-    dup SDL_Rect-y u32@ . ." y " 
-    dup SDL_Rect-w u32@ . ." w " 
-        SDL_Rect-h u32@ . ." h "
-;
+
 
 : show_character ( x y c -- )
     calc_srcrect
@@ -147,7 +235,15 @@ create text_buffer NUM_LINES NUM_COLUMNS * allot
 
 variable loopc
 
+defer render_graphics
+: no_render_graphics 
+    \ ." No render_graphics" cr
+;
+
+' no_render_graphics is render_graphics
+
 : render_all
+    render_graphics
     render_text_buf
     show_screen
     clear-renderer
@@ -324,6 +420,7 @@ key_array_max_size array key_array
     .frame_stats
 
     font-tex SDL_DestroyTexture
+    destroy_graphics
     IMG_Quit
     platform-close
 
@@ -342,7 +439,20 @@ key_array_max_size array key_array
         then
 ;
 
+: depth_check ( -- )
+    depth 0< if 
+        ." STACK UNDERFLOW" cr
+        ." DEPTH = " depth . cr 
+        .s
+        ." ---- QUIT --- " cr 
+        quit
+    then
+;
+
 : ~key ( -- key | -1 forquit )
+    \ ." ~key " .s
+    depth_check
+
     render_all
     begin
         interframe
@@ -449,10 +559,11 @@ key_array_max_size array key_array
     0 to textx
     0 to texty
     clear_text_buf
+    ['] no_render_graphics is render_graphics
 ;
 
-: set_bg { r g b -- }
-    renderer r g b 255 SDL_SetRenderDrawColor
+: set_drawcolour { r green b -- }
+    renderer r green b 255 SDL_SetRenderDrawColor
     if ." Error SDL_SetRenderDrawColor" . cr then
     \ set border colour as well on Spectrum Next
 ;
@@ -489,6 +600,7 @@ CREATE clipRect SDL_Rect ALLOT
         ." Error initializing SDL_image: " SDL_GetError ctype cr
         exit
     THEN
+    load_graphics
     load-font
     false to quit_flag
     renderer 255 255 255 255 SDL_SetRenderDrawColor if
@@ -496,7 +608,7 @@ CREATE clipRect SDL_Rect ALLOT
     then
     clear-renderer
     clear_text_buf
-    clip_rect_check
+    \ clip_rect_check
     SDL_GetTicks64 to game_start_time
     ['] handle_keydown is do_keyd
 \    begin
