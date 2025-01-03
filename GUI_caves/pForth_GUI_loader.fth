@@ -61,7 +61,7 @@ NULL value font-tex
 
 9 constant map_MID
 
-border_whole 1+ constant number_of_graphics
+map_MID 1+ constant number_of_graphics
 
 number_of_graphics array gr_array
 
@@ -606,8 +606,9 @@ CREATE clipRect SDL_Rect ALLOT
     renderer 255 255 255 255 SDL_SetRenderDrawColor if
         ." Error SDL_SetRenderDrawColor" . cr
     then
+
     clear-renderer
-    clear_text_buf
+    clear_screen
     \ clip_rect_check
     SDL_GetTicks64 to game_start_time
     ['] handle_keydown is do_keyd
