@@ -385,7 +385,8 @@ create text_buffer NUM_LINES NUM_COLUMNS * allot
 
 : check_xy { x y -- }
     y 0< 
-        y NUM_LINES >= or
+        \ coloum 24 allowed by emit.. (it scrolls automatically)
+        y NUM_LINES > or
             x 0< or
                 \ coloum 32 allowed by emit.. (it wraps automatically)
                 x NUM_COLUMNS > or
@@ -432,6 +433,30 @@ create text_buffer NUM_LINES NUM_COLUMNS * allot
     fill  ( addr u char -- ) 
 ;
 
+0 value flash
+0 value flash_timer
+640 constant flash_time
+flash_time 2* value overspill_time 
+
+: flash_timing ( -- )
+    \ calculate flash time
+    SDL_GetTicks64 flash_timer > if
+        flash_timer 0= if
+            \ first time, reset
+            SDL_GetTicks64 flash_time + to flash_timer
+        else
+            \ check for overspill
+            SDL_GetTicks64 flash_timer -
+            overspill_time > if
+                SDL_GetTicks64 flash_time + to flash_timer
+            else
+                flash_timer flash_time + to flash_timer
+            then
+        then
+        1 flash - to flash
+    then
+;
+
 variable loopc
 
 defer render_graphics
@@ -441,8 +466,13 @@ defer render_graphics
 
 ' no_render_graphics is render_graphics
 
+defer .cursor
+: no_cursor ;
+' no_cursor is .cursor
+
 : _render_all
     render_graphics
+    .cursor
     render_text_buf
     show_screen
     clear-renderer
@@ -452,6 +482,7 @@ defer render_graphics
         \ could do special updates while waiting for key here
         \ if screen changed you will need show_screen
         frame-delay
+        flash_timing
         loopc @ 1+ loopc !
 ;
 : make_picture
@@ -714,10 +745,19 @@ key_array_max_size array key_array
     then
 ;
 
+variable cursor
+: show_cursor
+    cursor @ if
+        flash if [char] _ ~emit else bl ~emit then step_back
+    then
+;
+' show_cursor is .cursor
+
 : ~accept { caddr n1 | numchars -- n2 }
     0 -> numchars
+    cursor on 
     begin
-        ~key 
+        ~key
         n1 if \ only allow if n1 > 0
             dup bl >= 
                 over 127 <
@@ -731,6 +771,7 @@ key_array_max_size array key_array
         then
         dup 13 = over 10 = or if
             drop numchars
+            cursor off
             exit
         then
         dup 127 = over 8 = or if
@@ -786,6 +827,7 @@ CREATE clipRect SDL_Rect ALLOT
 
 
 : setup_SDL
+    cursor off
     0 loopc !
     S" Caves" platform-open
     IMG_INIT_PNG IMG_Init 0= IF 

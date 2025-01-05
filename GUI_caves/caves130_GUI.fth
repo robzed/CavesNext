@@ -676,29 +676,7 @@ variable mon_hit_strength \ monster hit strength
     default_font
 ;
 
-0 value flash
-0 value flash_timer
-640 constant flash_time
-flash_time 2* value overspill_time 
 
-: flash_timing ( -- )
-    \ calculate flash time
-    SDL_GetTicks64 flash_timer > if
-        flash_timer 0= if
-            \ first time, reset
-            SDL_GetTicks64 flash_time + to flash_timer
-        else
-            \ check for overspill
-            SDL_GetTicks64 flash_timer -
-            overspill_time > if
-                SDL_GetTicks64 flash_time + to flash_timer
-            else
-                flash_timer flash_time + to flash_timer
-            then
-        then
-        1 flash - to flash
-    then
-;
 : .maphighlight
     flash if 192 192 192 else 64 0 0 then set_drawcolour
 
@@ -713,7 +691,6 @@ flash_time 2* value overspill_time
 ;
 
 : .map ( -- )
-    flash_timing
 
     -4 to pixel_x_offset
     -4 to pixel_y_offset
@@ -734,7 +711,7 @@ flash_time 2* value overspill_time
 
 : .playerinfo
     cursor_pos  \ save cursor pos
-    
+
     11 1 at_xy ~" HP: " hp @ ~. 
     11 2 at_xy ~" Gold: " gold @ ~.
     11 3 at_xy ~" Level: " level @ ~.
