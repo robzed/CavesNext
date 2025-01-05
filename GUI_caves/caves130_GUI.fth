@@ -511,7 +511,7 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
 : .grid ( -- )
     \ top line
     0 0 corner_dot cell.draw
-    width_x 0 do
+    width_x 1+ 1 do
         i 0 top_line cell.draw
     loop
 
