@@ -457,7 +457,7 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
         dup 0= if
             drop
             ." ERROR 2 - END OF NAME STRING REACHED" cr
-            bye
+            quit
         then
     loop
 ;
@@ -504,7 +504,8 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
 0 value mapy_offfset
 
 : cell.draw { x y gr -- }
-    x 3 << y 3 << gr graphic.draw
+    \ x 1+ 3 << y 1+ 3 << 8 8 gr graphic.draw
+    x 1+ y 1+ gr char.draw 
 ;
 
 : .grid ( -- )
@@ -639,16 +640,21 @@ variable mon_hit_strength \ monster hit strength
 ;
 
 : .monshow ( x y -- )
-    swap 1+ swap 1+
+    2dup mons_HP@ NOT_LOADED = if
+        [char] ? show_character
+        exit
+    then
     2dup mons_HP@ 0 > if
-        mons@ get_monster_name drop 1+ c@
+        2dup mons@ get_monster_name drop c@
         show_character
+    else
+        2drop
     then
 ;
 
 : .monlet ( x y -- )
     \ at player position, always show the monster
-    y @ 1- = swap x @ 1- = and if
+    y @ = swap x @ = and if
         ." current "
         .monshow
     else
@@ -663,13 +669,11 @@ variable mon_hit_strength \ monster hit strength
 
 : .map_mons ( -- )
     blue_text set-font
-    height_y 0 ?do
-        width_x 0 ?do
-            i j .monlet
+    height_y 1+ 1 ?do
+        width_x 1+ 1 ?do
+            i j .monshow
         loop
     loop
-    .s
-    bye
     default_font
 ;
 
@@ -696,23 +700,37 @@ flash_time 2* value overspill_time
         1 flash - to flash
     then
 ;
+: .maphighlight
+    flash if 192 else 0 then 0 0 set_drawcolour
+
+    x @ y @ char.fill
+
+    \ x @ CHAR_WIDTH * 
+    \ y @ CHAR_HEIGHT *
+    \ CHAR_WIDTH CHAR_HEIGHT 
+    \ gr.fill
+    
+    room_bg_colour
+;
+
 : .map ( -- )
     flash_timing
 
-    \ Add highlight
-    flash if 192 else 0 then 0 0 set_drawcolour
+    -4 to pixel_x_offset
+    -4 to pixel_y_offset
 
-    x @ 1- CHAR_WIDTH * 
-    y @ 1- CHAR_HEIGHT *
-    CHAR_WIDTH CHAR_HEIGHT 
-    gr.fill
-    room_bg_colour
+    \ Add highlight
+    .maphighlight
 
     \ Add grid for map
     .grid
 
     \ Add monsters
     .map_mons
+
+    0 to pixel_x_offset
+    0 to pixel_y_offset
+
 ;
 
 
@@ -1444,6 +1462,7 @@ create nbuff nbuff-size 1+ allot
 : test
     cr
     ." --------- TEST SETUP ---------" cr
+    setup_SDL
     setmap
     \ DEBUG_ld_rooms
     \ debug.map
@@ -1454,4 +1473,15 @@ create nbuff nbuff-size 1+ allot
     1 hit_strength !
     1 mon_hit_strength !
     \ debug.map   
+
+    0 0 192 make_font_colour to blue_text
+    clear_screen
+    make_picture
+
 ;
+
+( this is a test word for showing the latest screen)
+: .. make_picture ;
+
+test ..
+

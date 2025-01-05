@@ -278,21 +278,75 @@ number_of_graphics array gr_array
     loop
 ;
 
-: graphic.draw { x y gr -- }
+defer keystep
+
+8 constant CHAR_WIDTH
+8 constant CHAR_HEIGHT
+0 value pixel_y_offset
+0 value pixel_x_offset
+
+: calc_destrect ( x y -- )
+    \ set position of the text
+    ( y ) CHAR_HEIGHT * 
+        pixel_y_offset +
+        PIXEL_SCALE *
+        text_destrect SDL_Rect-y u32!
+    ( x ) CHAR_WIDTH *  
+        pixel_x_offset +
+        PIXEL_SCALE *
+        text_destrect SDL_Rect-x u32!
+    CHAR_WIDTH  PIXEL_SCALE * text_destrect SDL_Rect-w u32!
+    CHAR_HEIGHT PIXEL_SCALE * text_destrect SDL_Rect-h u32!
+;
+
+: calc_srcrect ( c -- )
+    dup bl < if drop [char] ? then
+    dup $80 >= if drop [char] ? then
+    bl -    \ 32 is first printable character
+    dup
+
+        $1F and \ 32 characters per row
+        8 *     \ 8 pixels per character
+    text_srcrect SDL_Rect-x u32!
+
+        5 >>    \ 32 characters per row
+        8 *     \ 8 pixels per character
+    text_srcrect SDL_Rect-y u32!
+
+    CHAR_WIDTH  text_srcrect SDL_Rect-w u32!
+    CHAR_HEIGHT text_srcrect SDL_Rect-h u32!
+;
+
+: graphic.draw { x y w h gr -- }
     x PIXEL_SCALE * text_destrect SDL_Rect-x u32!
     y PIXEL_SCALE * text_destrect SDL_Rect-y u32!
-    8 PIXEL_SCALE * text_destrect SDL_Rect-w u32!
-    8 PIXEL_SCALE *  text_destrect SDL_Rect-h u32!
+    w PIXEL_SCALE * text_destrect SDL_Rect-w u32!
+    h PIXEL_SCALE *  text_destrect SDL_Rect-h u32!
 
     renderer gr gr_array @ NULL text_destrect SDL_RenderCopy if
         ." Error rendering graphic: " SDL_GetError ctype cr
     then
 ;
+
+: char.draw { x y gr -- }
+    x y calc_destrect
+    renderer gr gr_array @ NULL text_destrect SDL_RenderCopy if
+        ." Error rendering graphic: " SDL_GetError ctype cr
+    then
+;
+
 : gr.fill { x y w h -- }
     x PIXEL_SCALE * text_destrect SDL_Rect-x u32!
     y PIXEL_SCALE * text_destrect SDL_Rect-y u32!
     w PIXEL_SCALE * text_destrect SDL_Rect-w u32!
     h PIXEL_SCALE * text_destrect SDL_Rect-h u32!
+    renderer text_destrect SDL_RenderFillRect if
+        ." SDL_RenderFillRect " .SDL_error
+    then
+;
+
+: char.fill { x y -- }
+    x y calc_destrect
     renderer text_destrect SDL_RenderFillRect if
         ." SDL_RenderFillRect " .SDL_error
     then
@@ -318,47 +372,6 @@ number_of_graphics array gr_array
         ." Error rendering graphic: " SDL_GetError ctype cr
     then
 ;
-
-
-
-
-defer keystep
-
-8 constant CHAR_WIDTH
-8 constant CHAR_HEIGHT
-0 value pixel_y_offset
-
-: calc_destrect ( x y -- )
-    \ set position of the text
-    ( y ) CHAR_HEIGHT * 
-        pixel_y_offset +
-        PIXEL_SCALE *
-        text_destrect SDL_Rect-y u32!
-    ( x ) CHAR_WIDTH *  
-        PIXEL_SCALE *
-        text_destrect SDL_Rect-x u32!
-    CHAR_WIDTH  PIXEL_SCALE * text_destrect SDL_Rect-w u32!
-    CHAR_HEIGHT PIXEL_SCALE * text_destrect SDL_Rect-h u32!
-;
-
-: calc_srcrect ( c -- )
-    dup bl < if drop [char] ? then
-    dup $80 >= if drop [char] ? then
-    bl -    \ 32 is first printable character
-    dup
-
-        $1F and \ 32 characters per row
-        8 *     \ 8 pixels per character
-    text_srcrect SDL_Rect-x u32!
-
-        5 >>    \ 32 characters per row
-        8 *     \ 8 pixels per character
-    text_srcrect SDL_Rect-y u32!
-
-    CHAR_WIDTH  text_srcrect SDL_Rect-w u32!
-    CHAR_HEIGHT text_srcrect SDL_Rect-h u32!
-;
-
 
 
 : show_character ( x y c -- )
@@ -752,7 +765,6 @@ key_array_max_size array key_array
     \ set border colour as well on Spectrum Next
 ;
 
-include caves130_GUI.fth
 
 \ : game.update
 \ ;
@@ -810,6 +822,7 @@ CREATE clipRect SDL_Rect ALLOT
     depth if ." ============ WARNING Stack not empty =========" cr .s then
 ;
 
+include caves130_GUI.fth
 
 : run
     setup_SDL
