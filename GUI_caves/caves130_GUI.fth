@@ -500,6 +500,9 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
     loop
 ;
 
+0 value mapx_offfset
+0 value mapy_offfset
+
 : cell.draw { x y gr -- }
     x 3 << y 3 << gr graphic.draw
 ;
@@ -528,12 +531,8 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
     loop
     width_x 1- height_y 1- map_BR cell.draw
 ;
-: .map ( -- )
-    \ Add highlight
-    \ Add grid for map
-    .grid
-    \ Add monsters
-;
+
+
 
 
 \ hit point and 6 spells for each monster.
@@ -633,6 +632,89 @@ variable mon_hit_strength \ monster hit strength
 ;
 \ Example:
 \ game_data_setup .player
+
+
+: room_bg_colour
+    192 192 128 set_drawcolour
+;
+
+: .monshow ( x y -- )
+    swap 1+ swap 1+
+    2dup mons_HP@ 0 > if
+        mons@ get_monster_name drop 1+ c@
+        show_character
+    then
+;
+
+: .monlet ( x y -- )
+    \ at player position, always show the monster
+    y @ 1- = swap x @ 1- = and if
+        ." current "
+        .monshow
+    else
+        mons.hp 0 <= if	
+            .monshow
+        else
+            [char] . show_character
+            ." not dead, not current " cr
+        then
+    then
+;
+
+: .map_mons ( -- )
+    blue_text set-font
+    height_y 0 ?do
+        width_x 0 ?do
+            i j .monlet
+        loop
+    loop
+    .s
+    bye
+    default_font
+;
+
+0 value flash
+0 value flash_timer
+640 constant flash_time
+flash_time 2* value overspill_time 
+
+: flash_timing ( -- )
+    \ calculate flash time
+    SDL_GetTicks64 flash_timer > if
+        flash_timer 0= if
+            \ first time, reset
+            SDL_GetTicks64 flash_time + to flash_timer
+        else
+            \ check for overspill
+            SDL_GetTicks64 flash_timer -
+            overspill_time > if
+                SDL_GetTicks64 flash_time + to flash_timer
+            else
+                flash_timer flash_time + to flash_timer
+            then
+        then
+        1 flash - to flash
+    then
+;
+: .map ( -- )
+    flash_timing
+
+    \ Add highlight
+    flash if 192 else 0 then 0 0 set_drawcolour
+
+    x @ 1- CHAR_WIDTH * 
+    y @ 1- CHAR_HEIGHT *
+    CHAR_WIDTH CHAR_HEIGHT 
+    gr.fill
+    room_bg_colour
+
+    \ Add grid for map
+    .grid
+
+    \ Add monsters
+    .map_mons
+;
+
 
 \ debug command to show the current room the player is in
 : .room ( -- )
