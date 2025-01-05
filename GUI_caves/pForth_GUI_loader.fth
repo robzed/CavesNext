@@ -61,16 +61,170 @@ include speccy_emu.fth
 0 value texty
 CREATE text_srcrect SDL_Rect ALLOT
 CREATE text_destrect SDL_Rect ALLOT
-NULL value font-tex
-\ NULL value current_font_tex
+NULL value default_font_tex
+NULL value current_font_tex
+NULL value base_font_surface
 
-: load-font ( -- )
-    renderer S\" ZX_Maverick/ZX_Maverick.png\x00" drop IMG_LoadTexture to font-tex
+: load-fonts ( -- )
+    \ renderer S\" ZX_Maverick/ZX_Maverick.png\x00" drop IMG_LoadTexture to default_font_tex
+    S\" ZX_Maverick/ZX_Maverick.png\x00" drop  IMG_Load to base_font_surface
+    renderer base_font_surface SDL_CreateTextureFromSurface to default_font_tex
+
+    \ set the default font
+    default_font_tex to current_font_tex
+;    
+
+20 constant max_fonts_stored
+create font_store max_fonts_stored :STACK
+0 value font_store_count
+
+\ store for later disposal
+: _store_font_text ( fontaddr -- )
+    dup 
+    font_store_count max_fonts_stored <>
+    and
+    if
+        font_store >STACK
+        font_store_count 1+ to font_store_count
+    else
+        drop
+    then
 ;
 
-\ : set-font ( fontaddr -- )
-\
-\ ;
+: dispose-fonts
+    \ ." dispose-fonts " cr
+    default_font_tex SDL_DestroyTexture
+    base_font_surface SDL_FreeSurface
+
+    \ dynamically allocated fonts
+    font_store_count 0 ?do
+        \ ." destroy font " I . cr
+        font_store STACK> SDL_DestroyTexture
+    loop
+    0 to font_store_count
+    \ ." dispose-fonts done" cr
+;
+
+: _must_lock ( surface -- requires-lock-flag )
+    \ #define SDL_MUSTLOCK(S) (((S)->flags & SDL_RLEACCEL) != 0)
+    SDL_Surface-flags u32@ SDL_RLEACCEL and 0<>
+;
+: _lock_surface ( surface -- error )
+    dup _must_lock if SDL_LockSurface else drop false then
+;
+: _unlock_surface ( surface -- )
+    dup _must_lock if SDL_UnlockSurface else drop then
+;
+
+
+: .surface ( surface -- )
+    cr ." SDL_Surface: " cr
+    dup SDL_Surface-w u32@ . ." x " cr
+    dup SDL_Surface-h u32@ . ." y " cr
+    dup SDL_Surface-pitch u32@ . ." pitch "  cr
+    dup SDL_Surface-format SDL_PixelFormat-BytesPerPixel u32@ . ." bytespp " cr
+    dup SDL_Surface-format SDL_PixelFormat-BitsPerPixel u32@ . ." bpp " cr
+    dup SDL_Surface-format SDL_PixelFormat-format u32@ . ." format " 
+    cr
+    drop
+;
+
+
+\ Macro
+:  SDL_BlitSurface SDL_UpperBlit ;
+
+0 value temp_surface
+32 constant new_surface-depth
+SDL_PIXELFORMAT_ARGB8888 constant new_surface-format 
+\ SDL_PIXELFORMAT_RGBA32 constant new_surface-format
+
+: _copy_base_font ( -- SDL_Surface )
+    0   \ flags
+    base_font_surface SDL_Surface-w u32@
+    base_font_surface SDL_Surface-h u32@
+    new_surface-depth new_surface-format
+    SDL_CreateRGBSurfaceWithFormat  ( flags w h depth format -- SDL_Surface* ) to temp_surface
+    temp_surface if
+        \ temp_surface .surface
+        \ base_font_surface .surface
+        base_font_surface NULL temp_surface  NULL 
+            SDL_BlitSurface ( SDL_Surface-src srcrect SDL_Surface-dst dstrect -- success-flag )
+        0= if 
+            temp_surface
+        else
+            ." SDL_BlitSurface failed" cr
+            temp_surface SDL_FreeSurface ( SDL_Surface* -- )
+            NULL
+        then
+    else
+        ." SDL_CreateSurface failed" cr
+        NULL
+    then
+;
+
+: _switch_colour { red gre blue surface | to-colour from-colour pitch -- }
+    c-int 4 <> c-pointer cell <> or if
+        ." Error: _switch_colour requires specific c-int/c-pointer sizes" cr
+        c-int . c-pointer . cr
+        exit
+    then
+    base_font_surface SDL_Surface-format SDL_PixelFormat-BytesPerPixel u32@ 4 <> if
+        ." Error: _switch_colour requires 4 bytes per pixel" cr
+        base_font_surface SDL_Surface-format SDL_PixelFormat-BytesPerPixel u32@ . cr
+        exit
+    then
+    surface SDL_Surface-format @ red gre blue 255 SDL_MapRGBA -> to-colour
+    surface SDL_Surface-format @ 0 0 0 255 SDL_MapRGBA -> from-colour
+    surface SDL_Surface-pitch u32@ -> pitch
+
+    surface _lock_surface if
+        ." lock surface failed " cr
+        exit
+    then
+
+    \ address of pixels
+    surface SDL_Surface-pixels @
+
+    surface SDL_Surface-h u32@ 0 ?do
+        dup
+        surface SDL_Surface-w u32@ 0 ?do
+            dup u32@ from-colour = if
+                to-colour over u32!
+            then
+            4 +
+        loop
+        \ next line
+        drop pitch +
+    loop
+    drop
+
+    surface _unlock_surface
+;
+
+: make_font_colour ( r g b -- fontaddr )
+    _copy_base_font to temp_surface
+    temp_surface if
+
+        \ change the colour black to another colour on that surface
+        temp_surface _switch_colour
+
+        \ now covert it to a texture
+        renderer temp_surface SDL_CreateTextureFromSurface ( renderer surface -- SDL_Texture* )
+        dup 0= if
+            ." SDL_CreateTextureFromSurface failed" cr
+            default_font_tex
+        else
+            dup _store_font_text
+        then
+        temp_surface SDL_FreeSurface ( SDL_Surface* -- )
+    else
+        default_font_tex
+    then
+;
+
+: set-font ( fontaddr -- ) to current_font_tex ;
+
+: default_font ( -- ) default_font_tex set-font ;
 
 : .SDL_Rect ( addr -- )
     ." SDL_Rect: "
@@ -139,7 +293,9 @@ number_of_graphics array gr_array
     y PIXEL_SCALE * text_destrect SDL_Rect-y u32!
     w PIXEL_SCALE * text_destrect SDL_Rect-w u32!
     h PIXEL_SCALE * text_destrect SDL_Rect-h u32!
-    renderer text_destrect SDL_RenderFillRect
+    renderer text_destrect SDL_RenderFillRect if
+        ." SDL_RenderFillRect " .SDL_error
+    then
 ;
 
 
@@ -209,7 +365,7 @@ defer keystep
     calc_srcrect
     calc_destrect
 
-    renderer font-tex text_srcrect text_destrect SDL_RenderCopy if
+    renderer current_font_tex text_srcrect text_destrect SDL_RenderCopy if
         ." Error rendering text: " SDL_GetError ctype cr
     then
 ;
