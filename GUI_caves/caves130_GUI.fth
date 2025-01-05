@@ -41,6 +41,8 @@
 \ License for Code - see file 'LICENSE' and README.md - summary: GPL v3
 \ =====================================================================
 
+0 value blue_text
+
 \ *
 \ * UTILITY FUNCTIONS
 \ *
@@ -199,7 +201,7 @@ create map width_x height_y * sizeof_MapRec * allot
 ;
 
 : instructions
-    255 255 128 set_drawcolour
+    192 192 128 set_drawcolour
     true
     begin
         clear_screen
@@ -252,7 +254,7 @@ create map width_x height_y * sizeof_MapRec * allot
 ;
 
 : credits_scroller ( -- )
-    128 255 255 set_drawcolour
+    96 192 192 set_drawcolour
     clear_screen
     100 to wait_cr_time
 
@@ -337,13 +339,14 @@ create map width_x height_y * sizeof_MapRec * allot
         255 16 - 192 16 - 15 border.draw
 ;
 
+
 : main_menu ( -- )
     begin
-        255 255 255 set_drawcolour
+        191 170 100 set_drawcolour
         clear_screen
-        mmborder
-        0 3 at_xy 
+        ['] mmborder is render_graphics
 
+        0 3 at_xy 
         S" Caves Of Chaos" center_text ~cr
         ~cr
         S"    A little Fantasy RPG" center_text ~cr
@@ -1264,10 +1267,10 @@ create nbuff nbuff-size 1+ allot
 
 : do_room ( -- game-state )
     begin
+        room_bg_colour
         clear_screen
         \ ******* fight sequence repeat, same room **************
         ['] .map is render_graphics
-        ." do_room " cr
         0 10 at_xy
         rmintro     \ intro to room
 
@@ -1340,6 +1343,7 @@ create nbuff nbuff-size 1+ allot
 \ This is the main game entry point
 \
 : caves_main ( -- )
+    0 0 192 make_font_colour to blue_text
     begin
         \ ************* start (new game) *************
         main_menu
