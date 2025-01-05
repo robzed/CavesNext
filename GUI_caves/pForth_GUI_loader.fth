@@ -23,6 +23,40 @@ include speccy_emu.fth
 \ rename map - map is pForth word to view dictionary space
 : memory map ;
 
+: UNRAVEL  ( -- , show names on stack )
+    >newline ." Calling sequence:" cr
+    rp0 rp@ - cell / ." (Levels = " dup . ." )" cr
+\    2+
+   50 min 0
+\    20 0
+    ?DO  4 spaces
+        rp@ i 2+ cell* + @
+        dup code> >name ?dup
+        IF id. drop
+        ELSE .hex
+        THEN cr?
+    LOOP cr
+;
+
+: depth_check ( -- )
+    depth 0< if 
+        ." STACK UNDERFLOW" cr
+        ." DEPTH = " depth . cr 
+        .s
+        unravel
+        ." ---- QUIT --- " cr 
+        quit
+    then
+    depth 40 > if 
+        ." STACK OVERFLOW" cr
+        ." DEPTH = " depth . cr 
+        .s
+        unravel
+        ." ---- QUIT --- " cr 
+        quit
+    then
+;
+
 0 value textx
 0 value texty
 CREATE text_srcrect SDL_Rect ALLOT
@@ -424,6 +458,8 @@ key_array_max_size array key_array
     IMG_Quit
     platform-close
 
+    \ do a final depth check to warn us that something has gone wrong.
+    depth_check
 ;
 
 : (~key)
@@ -439,15 +475,7 @@ key_array_max_size array key_array
         then
 ;
 
-: depth_check ( -- )
-    depth 0< if 
-        ." STACK UNDERFLOW" cr
-        ." DEPTH = " depth . cr 
-        .s
-        ." ---- QUIT --- " cr 
-        quit
-    then
-;
+
 
 : ~key ( -- key | -1 forquit )
     \ ." ~key " .s
