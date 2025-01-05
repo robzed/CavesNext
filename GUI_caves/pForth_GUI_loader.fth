@@ -776,8 +776,7 @@ CREATE clipRect SDL_Rect ALLOT
 ;
 
 
-
-: run
+: setup_SDL
     0 loopc !
     S" Caves" platform-open
     IMG_INIT_PNG IMG_Init 0= IF 
@@ -809,9 +808,13 @@ CREATE clipRect SDL_Rect ALLOT
 
     \ This does the whole game
     depth if ." ============ WARNING Stack not empty =========" cr .s then
+;
+
+
+: run
+    setup_SDL
+
     caves_main
-    \ [char] A ~emit ~cr
-    \ ~key .
 
     depth if ." ============ WARNING Stack not empty =========" cr .s then
     close_down
@@ -820,4 +823,7 @@ CREATE clipRect SDL_Rect ALLOT
 \ run
 
 \ load with:
-\ /Users/rob/Current_Projects/pForth/pforth_SDL/platforms/unix/pforth_standalone pForth_GUI_loader.fth
+\ /Users/rob/Current_Projects/pForth/pforth_SDL/platforms/unix/pforth_standalone -dbigger.dic
+\ include g.fth
+\ run
+
