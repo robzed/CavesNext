@@ -700,7 +700,7 @@ flash_time 2* value overspill_time
     then
 ;
 : .maphighlight
-    flash if 192 else 0 then 0 0 set_drawcolour
+    flash if 192 192 192 else 64 0 0 then set_drawcolour
 
     x @ y @ char.fill
 
