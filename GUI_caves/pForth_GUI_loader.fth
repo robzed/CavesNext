@@ -383,28 +383,29 @@ defer keystep
 
 create text_buffer NUM_LINES NUM_COLUMNS * allot
 
-: check_xy { x y caddr u -- }
+: check_xy { x y -- }
     y 0< 
         y NUM_LINES >= or
             x 0< or
-                x NUM_COLUMNS >= or
+                \ coloum 32 allowed by emit.. (it wraps automatically)
+                x NUM_COLUMNS > or
     if
-        ." Out of range " textx . texty . cr
-        caddr u type 
-        ."  Return stack " r@ . cr
-        .s abort
+        ." Out of range " x . y . cr
+        .s
+        UNRAVEL
+        abort
     then
 ;
 
 : text_buf! ( c -- )
-    textx texty S" text_buf!" check_xy
+    textx texty check_xy
     text_buffer texty NUM_COLUMNS * + textx + c!
 ;
 
 : clear_text_buf text_buffer NUM_LINES NUM_COLUMNS * bl fill ;
 
 : text_buf@ { x y -- c }
-    x y S" text_buf@" check_xy
+    x y check_xy
     text_buffer y NUM_COLUMNS * + x + c@
 ;
 
@@ -492,7 +493,7 @@ true value enable_pixel_scroll
     then
 ;
 : at_xy { x y -- }
-    x y S" at_xy" check_xy
+    x y check_xy
     x to textx
     y to texty
 ;
