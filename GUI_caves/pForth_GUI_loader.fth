@@ -496,6 +496,7 @@ true value enable_pixel_scroll
     x to textx
     y to texty
 ;
+: cursor_pos ( -- x y ) textx texty ;
 
 false value print_to_terminal
 
