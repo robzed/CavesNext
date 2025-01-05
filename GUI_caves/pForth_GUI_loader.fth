@@ -237,38 +237,33 @@ SDL_PIXELFORMAT_ARGB8888 constant new_surface-format
 \ List of graphics
 0 constant border_whole
 
-1 constant map_TL
-2 constant map_TR
-3 constant map_BL
-4 constant map_BR
+1 constant open_left
+2 constant open_bot
+3 constant open_bot_left
 
-5 constant map_LS
-6 constant map_RS
-7 constant map_TS
-8 constant map_BS
+4 constant corner_dot
+5 constant side_line
+6 constant top_line
+7 constant close_bot_left
 
-9 constant map_MID
-
-map_MID 1+ constant number_of_graphics
+close_bot_left 1+ constant number_of_graphics
 
 number_of_graphics array gr_array
 
 : load_graphics ( -- )
     renderer S\" Graphics/mmborder.png\x00" drop IMG_LoadTexture border_whole gr_array !
 
-    renderer S\" Graphics/corner_es.png\x00" drop IMG_LoadTexture map_TL gr_array !
-    renderer S\" Graphics/corner_sw.png\x00" drop IMG_LoadTexture map_TR gr_array !
-    renderer S\" Graphics/corner_ne.png\x00" drop IMG_LoadTexture map_BL gr_array !
-    renderer S\" Graphics/corner_nw.png\x00" drop IMG_LoadTexture map_BR gr_array !
+    renderer S\" Graphics/open_left.png\x00" drop IMG_LoadTexture open_left gr_array !
+    renderer S\" Graphics/open_bot.png\x00" drop IMG_LoadTexture open_bot gr_array !
+    renderer S\" Graphics/open_bot_left.png\x00" drop IMG_LoadTexture open_bot_left gr_array !
 
-    renderer S\" Graphics/side_nes.png\x00" drop IMG_LoadTexture map_LS gr_array !
-    renderer S\" Graphics/side_nws.png\x00" drop IMG_LoadTexture map_RS gr_array !
-    renderer S\" Graphics/side_esw.png\x00" drop IMG_LoadTexture map_TS gr_array !
-    renderer S\" Graphics/side_new.png\x00" drop IMG_LoadTexture map_BS gr_array !
+    renderer S\" Graphics/corner_dot.png\x00" drop IMG_LoadTexture corner_dot gr_array !
+    renderer S\" Graphics/side_line.png\x00" drop IMG_LoadTexture side_line gr_array !
+    renderer S\" Graphics/top_line.png\x00" drop IMG_LoadTexture top_line gr_array !
+    renderer S\" Graphics/close_bot_left.png\x00" drop IMG_LoadTexture close_bot_left gr_array !
 
-    renderer S\" Graphics/open4.png\x00" drop IMG_LoadTexture map_MID gr_array !
     number_of_graphics 0 ?do
-        I gr_array 0= if ." Error loading graphics " I . cr then
+        I gr_array 0= if ." Error loading graphics " I . cr bye then
     loop
 ;
 

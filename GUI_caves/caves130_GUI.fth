@@ -505,32 +505,31 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
 
 : cell.draw { x y gr -- }
     \ x 1+ 3 << y 1+ 3 << 8 8 gr graphic.draw
-    x 1+ y 1+ gr char.draw 
+    x y gr char.draw 
 ;
 
 : .grid ( -- )
     \ top line
-    0 0 map_TL cell.draw
-    width_x 1- 1 do
-        i 0 map_TS cell.draw
+    0 0 corner_dot cell.draw
+    width_x 0 do
+        i 0 top_line cell.draw
     loop
-    width_x 1- 0 map_TR cell.draw
 
     \ middle section
-    height_y 1- 1 do
-        0 i map_LS cell.draw
-        width_x 1- 1 do
-            i j map_MID cell.draw
+    height_y 1 do
+        0 i side_line cell.draw
+        width_x 1 do
+            i j open_bot_left cell.draw
         loop
-        width_x 1- i map_RS cell.draw
+        width_x i open_bot cell.draw
     loop
 
     \ bottom line
-    0 height_y 1- map_BL cell.draw
-    height_y 1- 1 do
-        i height_y 1- map_BS cell.draw
+    0 height_y side_line cell.draw
+    height_y 1 do
+        i height_y open_left cell.draw
     loop
-    width_x 1- height_y 1- map_BR cell.draw
+    width_x height_y close_bot_left cell.draw
 ;
 
 
@@ -641,7 +640,7 @@ variable mon_hit_strength \ monster hit strength
 
 : .monshow ( x y -- )
     2dup mons_HP@ NOT_LOADED = if
-        [char] ? show_character
+        [char] * show_character
         exit
     then
     2dup mons_HP@ 0 > if
@@ -709,7 +708,7 @@ flash_time 2* value overspill_time
     \ y @ CHAR_HEIGHT *
     \ CHAR_WIDTH CHAR_HEIGHT 
     \ gr.fill
-    
+
     room_bg_colour
 ;
 
@@ -1481,7 +1480,7 @@ create nbuff nbuff-size 1+ allot
 ;
 
 ( this is a test word for showing the latest screen)
-: .. make_picture ;
+: ++ make_picture ;
 
-test ..
+test ++
 
