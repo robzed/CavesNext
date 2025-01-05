@@ -156,7 +156,7 @@ create map width_x height_y * sizeof_MapRec * allot
 : mGold@ ( x y -- n )
     get_room_addr 2 CELLS + @
 ;
-: mGold! ( x y -- n )
+: mGold! ( n x y -- )
     get_room_addr 2 CELLS + !
 ;
 
@@ -467,7 +467,7 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
 \ should be called sometime after setup
 : .room_xy ( x y -- )
     2dup mons@ .
-    2dup mons@ get_monster_name ~type
+    2dup mons@ get_monster_name type
     2dup mons_HP@ NOT_LOADED <> if
         ."  hp="
         2dup mons_HP@ .
@@ -759,9 +759,9 @@ variable mon_hit_strength \ monster hit strength
 \ This function basically populates the hit point data and the spell
 \ data is the player hasn't been into that room before.
 
-: goroom ( -- )
-    mons.hp NOT_LOADED = if	     \ if first time player been in this room
-        x @ y @ mons@       \ get the monster in this room
+: load_mon { rx ry -- }
+    rx ry mons_HP@ NOT_LOADED = if	     \ if first time player been in this room
+        rx ry mons@       \ get the monster in this room
         dup 0 < if
             ." ERROR - monster not set" . ~cr
             bye
@@ -772,18 +772,36 @@ variable mon_hit_strength \ monster hit strength
             ." ERROR 3 - monster data broken" ~cr
             bye
         then
-        dup c@ mons.hp!          \ hit points from monster list
-        dup c@ mons.gold!        \ store original hit points in gold as well
-        1+ dup c@ 1 x @ y @ mSPELL!  \ get monster spells and put in store
-        1+ dup c@ 2 x @ y @ mSPELL!
-        1+ dup c@ 3 x @ y @ mSPELL!
-        1+ dup c@ 4 x @ y @ mSPELL!
-        1+ dup c@ 5 x @ y @ mSPELL!
-        1+ dup c@ 6 x @ y @ mSPELL!
+        dup c@ rx ry mons_HP!          \ hit points from monster list
+        dup c@ rx ry mGold!        \ store original hit points in gold as well
+        1+ dup c@ 1 rx ry mSPELL!  \ get monster spells and put in store
+        1+ dup c@ 2 rx ry mSPELL!
+        1+ dup c@ 3 rx ry mSPELL!
+        1+ dup c@ 4 rx ry mSPELL!
+        1+ dup c@ 5 rx ry mSPELL!
+        1+ dup c@ 6 rx ry mSPELL!
         drop
     then
-;		\ end of goroom()
+;
 
+\ go into the room, mostly load the monster data
+: goroom x @ y @ load_mon ;
+
+: load_monX { rx ry -- }
+    rx 1 < if exit then
+    ry 1 < if exit then
+    rx width_x > if exit then
+    ry height_y > if exit then
+
+    rx ry load_mon
+;
+
+: load_adjacent ( -- )
+    x @ 1+ y @    load_monX
+    x @    y @ 1+ load_monX
+    x @ 1- y @    load_monX
+    x @    y @ 1- load_monX
+;
 
 \ Notice: destroys x and y for player - only for debug
 : DEBUG_ld_rooms ( -- )
@@ -859,7 +877,7 @@ variable mon_hit_strength \ monster hit strength
 : mondeath ( -- ) 
   ~" The " .mons.name ~"  is Dead" ~cr
   ~" You find " mons.gold ~. ~" Gold" ~cr ~cr
-
+  load_adjacent
   gold @ mons.gold + gold !
   0 mons.hp!
   0 mons.gold!
