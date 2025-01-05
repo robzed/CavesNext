@@ -67,9 +67,13 @@ CREATE game_event SDL_Event ALLOT
 ;
 
 : game-cleanup ( -- )
-    renderer SDL_DestroyRenderer
+    renderer if
+        renderer SDL_DestroyRenderer
+    then
     NULL TO renderer
-    window SDL_DestroyWindow
+    window if
+        window SDL_DestroyWindow
+    then
     NULL TO window
 
     cleanup-events
@@ -77,7 +81,11 @@ CREATE game_event SDL_Event ALLOT
     SDL_Quit  \  ." quit game error " exit-value @ . cr 10 ms
 ;
 
-: .SDL_error ( c-addr u -- )
+: .SDL_error ( -- )
+    ." SDL Error: " SDL_GetError ctype cr
+;
+
+: handle_SDL_error ( c-addr u -- )
     ." Error: " type cr
     SDL_GetError ctype space cr
     1 TO exit-value
@@ -89,19 +97,19 @@ CREATE game_event SDL_Event ALLOT
     window_title _to_c-str
 
     SDL_INIT_EVERYTHING SDL_Init IF
-        S" Error initializing SDL: " .SDL_error
+        S" Error initializing SDL: " handle_SDL_error
     THEN
 
     window_title SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED 
     WINDOW_WIDTH PIXEL_SCALE * WINDOW_HEIGHT PIXEL_SCALE * window_flags
     SDL_CreateWindow TO window
     window 0= IF 
-        S" Error creating Window: " .SDL_error
+        S" Error creating Window: " handle_SDL_error
     THEN
 
     window first_rendering_driver renderer_flags SDL_CreateRenderer TO renderer
     renderer 0= IF
-        S" Error creating Renderer: " .SDL_error
+        S" Error creating Renderer: " handle_SDL_error
     THEN
 ;
 
@@ -213,7 +221,7 @@ create frame_stats 10 cells allot
 ;
 
 : .frame_stats
-    cr ." Frame stats" cr
+    ." Frame stats" cr
     ." Last 10: "
     10 0 do
         frame_stats i cells + @ . ." "
