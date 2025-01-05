@@ -732,6 +732,22 @@ flash_time 2* value overspill_time
 
 ;
 
+: .playerinfo
+    cursor_pos  \ save cursor pos
+    
+    11 1 at_xy ~" HP: " hp @ ~. 
+    11 2 at_xy ~" Gold: " gold @ ~.
+    11 3 at_xy ~" Level: " level @ ~.
+    11 4 at_xy ~" Str: " hit_strength @ ~.
+
+    \ restore cursor pos
+    at_xy
+;
+
+: .view ( -- )
+    .map
+    .playerinfo
+;
 
 \ debug command to show the current room the player is in
 : .room ( -- )
@@ -811,9 +827,9 @@ flash_time 2* value overspill_time
 \       - Room intro text -
 \ 
 : rmintro ( -- )
-    ~cr
-    ~" You have " hp @ ~. ~" hit points and " gold @ ~. ~" gold" ~cr
-    multi @ 0= if ~" You are Level " level @ ~. ~cr then
+    \ ~cr
+    \ ~" You have " hp @ ~. ~" hit points and " gold @ ~. ~" gold" ~cr
+    \ multi @ 0= if ~" You are Level " level @ ~. ~cr then
     ~" Here is a monster with " mons.hp ~. ~" hit points called a " .mons.name ~cr
 ;
 
@@ -1369,8 +1385,8 @@ create nbuff nbuff-size 1+ allot
         room_bg_colour
         clear_screen
         \ ******* fight sequence repeat, same room **************
-        ['] .map is render_graphics
-        0 10 at_xy
+        ['] .view is render_graphics
+        0 11 at_xy
         rmintro     \ intro to room
 
         pdeath?	\ player death? (i 0=continue 1=goto start 2=stop)
@@ -1482,5 +1498,5 @@ create nbuff nbuff-size 1+ allot
 ( this is a test word for showing the latest screen)
 : ++ make_picture ;
 
-test ++
+\ test ++
 
