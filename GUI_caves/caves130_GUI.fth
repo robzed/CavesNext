@@ -965,7 +965,10 @@ create nbuff nbuff-size 1+ allot
     ['] CH_char C-input
 
     [CHAR] H = if
-    
+
+        clear_text_buf
+        0 11 at_xy
+
         ~" Heal" ~cr ~" Healing: (10 gold = 1 hp)"
 
         0 \ dummy value to be dropped first time
@@ -990,8 +993,8 @@ create nbuff nbuff-size 1+ allot
 
         hp @ swap + hp !
 
-    else ~" Continue" ~cr then
-
+    \ else ~" Continue" ~cr then
+    then
 ;
 
 
@@ -1003,7 +1006,9 @@ create nbuff nbuff-size 1+ allot
 \ 
 : newlvl ( -- )
     m/lvl @ 10 = if
-        ~cr ~" You Gain a level!!!" ~cr
+        clear_text_buf
+        0 11 at_xy
+        ~" You Gain a level!!!" ~cr
         ~cr ~"           YOU COCKY BLEEDER" ~cr 	\ Pauls sentence!!
         ~" You gain 10 hp" ~cr
         ~" You gain 5 spells!" ~cr ~cr
@@ -1014,6 +1019,9 @@ create nbuff nbuff-size 1+ allot
         true_level @ 1+ true_level !
         hp @ 10 + hp !
         0 m/lvl !
+
+        ~" Press a key to continue" ~cr
+        ~key drop
     then
 ;
 
@@ -1033,18 +1041,19 @@ create nbuff nbuff-size 1+ allot
 \ 
 : pmove ( -- )
 
-    ~cr ~" You may go "
+    clear_text_buf
+    0 11 at_xy
 
-    x @ 1 <> if ~" West (Type W) or " then
-    x @ width_x <> if ~" East (Type E) or " then
-    y @ height_y <> if ~" South (Type S) or " then
-    y @ 1 <> if ~" North (Type N)" then
-    ~cr ~" or Wait (Type Q)"
+    ~" You may go" ~cr
+
+    x @ 1 <> if ~"   West (Type W) or " ~cr then
+    x @ width_x <> if ~"   East (Type E) or " ~cr then
+    y @ height_y <> if ~"   South (Type S) or " ~cr then
+    y @ 1 <> if ~"   North (Type N) or" ~cr then
+    ~"   Wait (Type Q)" ~cr
 
     level @ 3 > if 
         ~"  or Check the number of Monsters (Type M)." ~cr 
-    else
-        ~cr
     then
     ~cr ~" Direction >"
 
@@ -1121,8 +1130,8 @@ create nbuff nbuff-size 1+ allot
 \ - Player fight options - 
 : foptions ( -- c )
     ~cr
-    ~" Type R to run, F to fight once, M to fight many times"
-    ~"  or S to Cast Spell" ~cr
+    ~" Type R to run, F to fight once, M to fight many times or" ~cr
+    ~" S to Cast Spell" ~cr
     ~" What do you wish to do? "
 
     ['] foptions_char C-input
