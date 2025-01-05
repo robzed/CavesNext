@@ -432,13 +432,13 @@ defer render_graphics
 
 ' no_render_graphics is render_graphics
 
-: render_all
+: _render_all
     render_graphics
     render_text_buf
     show_screen
     clear-renderer
 ;
-: interframe
+: _interframe
         do-event-loop
         \ could do special updates while waiting for key here
         \ if screen changed you will need show_screen
@@ -446,8 +446,8 @@ defer render_graphics
         loopc @ 1+ loopc !
 ;
 : make_picture
-    render_all
-    interframe
+    _render_all
+    _interframe
 ;
 
 true value enable_scroll
@@ -605,11 +605,12 @@ key_array_max_size array key_array
 0 value game_start_time
 
 : close_down
+    ." ---- Close down ----" cr
     ." Exiting (loop count = " loopc @ . ." ) " cr
     ." Average frame time = " SDL_GetTicks64 game_start_time - loopc @ / . ." ms" cr
     .frame_stats
 
-    font-tex SDL_DestroyTexture
+    dispose-fonts
     destroy_graphics
     IMG_Quit
     platform-close
@@ -637,9 +638,8 @@ key_array_max_size array key_array
     \ ." ~key " .s
     depth_check
 
-    render_all
     begin
-        interframe
+        make_picture
     key? quit_flag or key_array_keys? or until
 
     quit_flag if 
@@ -666,7 +666,7 @@ key_array_max_size array key_array
 : timed_wait ( n -- )
     SDL_GetTicks64 + 
     begin
-        interframe
+        make_picture
         SDL_GetTicks64 over >=
             ~key? or
     until
@@ -785,7 +785,7 @@ CREATE clipRect SDL_Rect ALLOT
         exit
     THEN
     load_graphics
-    load-font
+    load-fonts
     false to quit_flag
     renderer 255 255 255 255 SDL_SetRenderDrawColor if
         ." Error SDL_SetRenderDrawColor" . cr

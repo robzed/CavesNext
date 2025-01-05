@@ -234,7 +234,7 @@ create map width_x height_y * sizeof_MapRec * allot
         else
             true
         then
-        render_all
+        make_picture
         1000 timed_wait
         ~key?
     until
