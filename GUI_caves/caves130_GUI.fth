@@ -199,45 +199,59 @@ create map width_x height_y * sizeof_MapRec * allot
     NUM_COLUMNS u - 0 max ~spaces
     caddr u ~type
 ;
+: key_wait ( n -- )
+    timed_wait ~key? if ~key drop then
+;
 
 : instructions
     192 192 128 set_drawcolour
-    true
+
+    clear_screen
+    S" - Instructions -" center_text ~cr
+    ~cr
+    ~" You are in a dungeon" ~cr
+    S" called the Caves of Chaos;" center_text ~cr
+    S" a dangerous place."  right_adjust ~cr
+    ~cr
+    1000 key_wait
+    S" It's a 10 by 10 set of rooms" center_text ~cr
+    ~cr
+    1000 key_wait
+    ~" Defeat all the monsters " ~cr
+    S" in the caves to win." right_adjust ~cr
+    ~cr
+    1000 key_wait
+    S" You can move " center_text ~cr
+    S" North, South, East or West " center_text ~cr
+    S" after defeating a monster." center_text ~cr
+    ~cr
+\               11111111112222222222333
+\      12345678901234567890123456789012
+    \ ~" You can heal yourself," ~cr
+    \ S" but it costs 10 gold." right_adjust ~cr
+
+    1000 key_wait
+    ~" Health is more useful than gold." ~cr
+    ~cr
+
+    1000 key_wait
+    S" Use your spells carefully." center_text ~cr
+    ~cr
+
+    1000 key_wait
+    ~" Tackle monsters in the right" ~cr
+    S" order to win all fights." right_adjust ~cr
+    ~cr ~cr
+
+    1000 key_wait
     begin
-        clear_screen
-        S" - Instructions -" center_text ~cr
-        ~cr
-        ~" You are in a dungeon" ~cr
-        S" called the Caves of Chaos." center_text ~cr
-        S" A dangerous place."  right_adjust ~cr
-        ~cr
-        S" It's a 10 by 10 set of rooms" center_text ~cr
-        ~cr
-        ~" Defeat all the monsters " ~cr
-        S" in the caves to win." right_adjust ~cr
-        ~cr
-        ~" You can move North, South, " ~cr
-        S" East or West," right_adjust ~cr
-        S"  after defeating a monster." center_text ~cr
-        ~cr
-    \               11111111112222222222333
-    \      12345678901234567890123456789012
-        ~" You can heal yourself," ~cr
-        S" but it costs 10 gold." right_adjust ~cr
-        ~cr
-        ~" Use your spells carefully." ~cr
-        ~cr
-        ~" Tackle monsters in the right" ~cr
-        S" order to win all fights." right_adjust ~cr
-        ~cr
-        if
-            S" (press a key to continue)" center_text
-            false
-        else
-            true
-        then
         make_picture
-        1000 timed_wait
+        0 23 at_xy
+        flash if
+            S" (press a key to continue)" center_text
+        else
+            NUM_COLUMNS ~spaces
+        then
         ~key?
     until
     ~key drop
