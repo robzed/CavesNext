@@ -975,7 +975,7 @@ create nbuff nbuff-size 1+ allot
 
     [CHAR] H = if
 
-        clear_text_buf
+        \ clear_text_buf
         0 11 at_xy
 
         ~" Heal" ~cr ~" Healing: (10 gold = 1 hp)"
@@ -1015,7 +1015,7 @@ create nbuff nbuff-size 1+ allot
 \ 
 : newlvl ( -- )
     m/lvl @ 10 = if
-        clear_text_buf
+        \ clear_text_buf
         0 11 at_xy
         ~" You Gain a level!!!" ~cr
         ~cr ~"           YOU COCKY BLEEDER" ~cr 	\ Pauls sentence!!
@@ -1050,7 +1050,7 @@ create nbuff nbuff-size 1+ allot
 \ 
 : pmove ( -- )
 
-    clear_text_buf
+    \ clear_text_buf
     0 11 at_xy
 
     ~" You may go" ~cr
@@ -1401,7 +1401,7 @@ create nbuff nbuff-size 1+ allot
 : do_room ( -- game-state )
     begin
         room_bg_colour
-        clear_screen
+        \ clear_screen
         \ ******* fight sequence repeat, same room **************
         ['] .view is render_graphics
         0 11 at_xy
@@ -1480,6 +1480,7 @@ create nbuff nbuff-size 1+ allot
     begin
         \ ************* start (new game) *************
         main_menu
+        clear_screen
         setmap      \ map is Monster in room data
         game_data_setup
 
