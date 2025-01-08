@@ -255,7 +255,6 @@ create map width_x height_y * sizeof_MapRec * allot
         ~key?
     until
     ~key drop
-    drop
 ;
 
 300 value wait_cr_time

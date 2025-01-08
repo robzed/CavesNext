@@ -486,6 +486,7 @@ defer .cursor
         loopc @ 1+ loopc !
 ;
 : make_picture
+    depth_check
     _render_all
     _interframe
 ;
@@ -677,8 +678,7 @@ key_array_max_size array key_array
 
 : ~key ( -- key | -1 forquit )
     \ ." ~key " .s
-    depth_check
-
+    
     begin
         make_picture
     key? quit_flag or key_array_keys? or until
