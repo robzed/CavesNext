@@ -386,10 +386,10 @@ create text_buffer NUM_LINES NUM_COLUMNS * allot
 : check_xy { x y -- }
     y 0< 
         \ coloum 24 allowed by emit.. (it scrolls automatically)
-        y NUM_LINES > or
+        y NUM_LINES >= or
             x 0< or
                 \ coloum 32 allowed by emit.. (it wraps automatically)
-                x NUM_COLUMNS > or
+                x NUM_COLUMNS >= or
     if
         ." Out of range " x . y . cr
         .s
@@ -525,7 +525,13 @@ true value enable_pixel_scroll
     then
 ;
 : at_xy { x y -- }
-    x y check_xy
+    \ we allow one past the end
+    y NUM_COLUMNS > x NUM_LINES > or if
+        ." at_xy out of range " x . y . cr
+        .s
+        UNRAVEL
+        abort
+    then
     x to textx
     y to texty
 ;
