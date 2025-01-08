@@ -207,20 +207,27 @@ create map width_x height_y * sizeof_MapRec * allot
     192 192 128 set_drawcolour
 
     clear_screen
+    default_font
     S" - Instructions -" center_text ~cr
     ~cr
+
+    blue_text set-font
     ~" You are in a dungeon" ~cr
     S" called the Caves of Chaos;" center_text ~cr
     S" a dangerous place."  right_adjust ~cr
     ~cr
     1000 key_wait
+    default_font
     S" It's a 10 by 10 set of rooms" center_text ~cr
     ~cr
     1000 key_wait
+
+    blue_text set-font
     ~" Defeat all the monsters " ~cr
     S" in the caves to win." right_adjust ~cr
     ~cr
     1000 key_wait
+    default_font
     S" You can move " center_text ~cr
     S" North, South, East or West " center_text ~cr
     S" after defeating a monster." center_text ~cr
@@ -231,14 +238,17 @@ create map width_x height_y * sizeof_MapRec * allot
     \ S" but it costs 10 gold." right_adjust ~cr
 
     1000 key_wait
+    blue_text set-font
     ~" Health is more useful than gold." ~cr
     ~cr
 
     1000 key_wait
+    default_font
     S" Use your spells carefully." center_text ~cr
     ~cr
 
     1000 key_wait
+    blue_text set-font
     ~" Tackle monsters in the right" ~cr
     S" order to win all fights." right_adjust ~cr
     ~cr ~cr

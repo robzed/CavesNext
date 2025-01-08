@@ -382,6 +382,8 @@ defer keystep
 32 constant NUM_COLUMNS
 
 create text_buffer NUM_LINES NUM_COLUMNS * allot
+create attribute_buffer NUM_LINES NUM_COLUMNS * allot
+NUM_LINES array line_font
 
 : check_xy { x y -- }
     y 0< 
@@ -400,10 +402,22 @@ create text_buffer NUM_LINES NUM_COLUMNS * allot
 
 : text_buf! ( c -- )
     textx texty check_xy
+
+    \ set the colour for this line
+    current_font_tex texty line_font !
+
+    \ store the character
     text_buffer texty NUM_COLUMNS * + textx + c!
 ;
 
-: clear_text_buf text_buffer NUM_LINES NUM_COLUMNS * bl fill ;
+: clear_text_buf 
+    text_buffer NUM_LINES NUM_COLUMNS * bl fill
+
+    \ All lines are default font
+    NUM_LINES 0 ?do
+        default_font_tex i line_font !
+    loop
+;
 
 : text_buf@ { x y -- c }
     x y check_xy
@@ -412,6 +426,7 @@ create text_buffer NUM_LINES NUM_COLUMNS * allot
 
 : render_text_buf
     NUM_LINES 0 ?do
+        i line_font @ to current_font_tex
         NUM_COLUMNS 0 ?do
             i j 2dup
             text_buf@ ( x y x y -- x y c )
