@@ -9,6 +9,7 @@
 \ SDL2 bindings for Gforht are kindly Zlib licenses - so no worries.
 
 ANEW TASK-FORTH_GUI_LOADER.FTH
+decimal
 
 include speccy_emu.fth
 

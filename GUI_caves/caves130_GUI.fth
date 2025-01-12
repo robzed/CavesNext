@@ -40,8 +40,10 @@
 \ =====================================================================
 \ License for Code - see file 'LICENSE' and README.md - summary: GPL v3
 \ =====================================================================
+decimal
 
 0 value blue_text
+0 value bwhite_text
 
 \ *
 \ * UTILITY FUNCTIONS
@@ -203,12 +205,12 @@ create map width_x height_y * sizeof_MapRec * allot
     timed_wait ~key? if ~key drop then
 ;
 
-: instructions
+: game-hints
     192 192 128 set_drawcolour
 
     clear_screen
     default_font
-    S" - Instructions -" center_text ~cr
+    S" - Game Hints -" center_text ~cr
     ~cr
 
     blue_text set-font
@@ -343,6 +345,103 @@ create map width_x height_y * sizeof_MapRec * allot
     loop
 ;
 
+
+true value music
+true value sound_fx
+
+6 constant nstars
+nstars array stars  \ byte 0=x, 1=y
+variable fr_count
+
+: init-star ( index -- )
+    stars
+    NUM_COLUMNS x_rand  over c!
+    NUM_LINES x_rand    swap 1+ c!
+; 
+
+: init-stars ( index -- )
+    nstars 0 ?do
+        i init-star
+    loop
+    0 fr_count !
+;
+
+: settingsr ( -- )
+    bwhite_text set-font
+    nstars 0 ?do
+        i stars
+           dup c@ swap
+        1+     c@
+        ( x y )
+        [char] . show_character \ could be * or something else
+    loop
+    default_font
+
+    fr_count @ nstars 2 << >= if
+        0 fr_count !
+    else
+        fr_count @ $3 and 0= if
+            fr_count @ 2 >> init-star
+        then
+        1 fr_count +! 
+    then
+;
+
+: settings-menu ( -- )
+    init-stars
+    begin
+        200 170 200 set_drawcolour
+        clear_screen
+        ['] settingsr is render_graphics
+
+        0 1 at_xy 
+        S" Game Settings" center_text ~cr
+        ~cr ~cr ~cr 
+        blue_text set-font
+        music if
+            S" Music [On]"
+        else
+            S" Music [Off]"
+        then    
+        center_text ~cr ~cr
+        default_font
+
+        S" 1 - Music On" center_text ~cr ~cr
+        S" 2 - Music Off" center_text ~cr ~cr 
+
+        ~cr ~cr 
+        blue_text set-font
+        sound_fx if
+            S" Sound Effects [On]"
+        else
+            S" Sound Effects [Off]"
+        then
+        center_text ~cr ~cr
+        default_font
+        S" 3 - Sound Effects On" center_text ~cr ~cr
+        S" 4 - Source Effects Off" center_text ~cr ~cr 
+
+        0 NUM_LINES 2 - at_xy 
+        S" 0 - Leave Menu" center_text ~cr
+
+        ~key
+        dup [char] 1 = if
+            true to music
+        then
+        dup [char] 2 = if
+            false to music
+        then
+        dup [char] 3 = if
+            true to sound_fx
+        then
+        dup [char] 4 = if
+            false to sound_fx
+        then
+
+        [char] 0 =
+    until    
+;
+
 : mmborder
         0 0 0 border.draw
         NUM_COLUMNS 4 - 4 / 0 ?do
@@ -377,6 +476,7 @@ create map width_x height_y * sizeof_MapRec * allot
         S" 1 - Play game" center_text ~cr ~cr
         S" 2 - Credits" center_text ~cr ~cr
         S" 3 - Game Hints" center_text ~cr ~cr
+        S" 4 - Settings" center_text ~cr ~cr
         0 NUM_LINES 3 - at_xy 
         S\" \x7F 1990-2025 Rob Probin" center_text ~cr
 
@@ -385,7 +485,10 @@ create map width_x height_y * sizeof_MapRec * allot
             credits_scroller
         then
         dup [char] 3 = if
-            instructions
+            game-hints
+        then
+        dup [char] 4 = if
+            settings-menu
         then
 
         [char] 1 =
@@ -1486,6 +1589,8 @@ create nbuff nbuff-size 1+ allot
 \
 : caves_main ( -- )
     0 0 192 make_font_colour to blue_text
+    255 255 255 make_font_colour to bwhite_text
+    
     begin
         \ ************* start (new game) *************
         main_menu

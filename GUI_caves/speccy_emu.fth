@@ -9,6 +9,7 @@
 \    * underscore is internal to the file (like a private variable in Python)
 
 ANEW SPECCY_EMU.FTH
+decimal
 
 \ Constants
 0 CONSTANT NULL
