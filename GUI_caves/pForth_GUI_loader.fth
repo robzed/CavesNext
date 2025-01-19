@@ -420,6 +420,11 @@ NUM_LINES array line_font
     loop
 ;
 
+: clr_line ( y -- )
+    0 over check_xy
+    NUM_COLUMNS * text_buffer + NUM_COLUMNS bl fill
+;
+
 : text_buf@ { x y -- c }
     x y check_xy
     text_buffer y NUM_COLUMNS * + x + c@
@@ -517,14 +522,14 @@ true value enable_pixel_scroll
                     CHAR_HEIGHT 0 ?do
                         I negate to pixel_y_offset
                         make_picture
-                        10 SDL_Delay
+\                        10 SDL_Delay
                     loop
                     0 to pixel_y_offset
                 then
                 NUM_LINES 1- to texty
                 scroll_y
                 make_picture
-                10 SDL_Delay
+\                10 SDL_Delay
                 \ ." Scroll?" key
             else
                 0 to texty
