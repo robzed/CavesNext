@@ -1077,13 +1077,14 @@ create nbuff nbuff-size 1+ allot
     <= and
 ;
 
+
 \ 
 \         - Heal Routine -
 \ 
 : heal ( -- )
 
-    ~" Do you wish to Heal(Type H) or continue(Type C)" ~cr ~cr
-    ~" ? "
+    ~" Do you wish to Heal(Type H) or"
+    ~" continue(Type C)?"
 
     ['] CH_char C-input
 
@@ -1223,7 +1224,7 @@ create nbuff nbuff-size 1+ allot
 
     dup [char] Q = if
         ~cr ~cr
-        ~" You stay where you are"
+        ~" You stay where you are."
     then
 
     dup [char] M = level @ 3 > and if
