@@ -41,17 +41,19 @@ CREATE game_event SDL_Event ALLOT
     S\" rb\x00" drop SDL_RWFromFile 1 SDL_LoadBMP_RW
 ;
 
-
-: _to_c-str ( source u target -- c-addr )
-    \ limit the length of the string
-    swap _max_window_title_len min swap
-
+: >cstr ( source u target -- c-addr )
     \ zero terminate the string to start
     2dup +  \ one past the end of the string
     0 swap !    
 
     swap
     move ( source target u -- )
+;
+
+: _to_c-str ( source u target -- c-addr )
+    \ limit the length of the string
+    swap _max_window_title_len min swap
+    >cstr
 ;
 
 : cleanup-events ( -- )

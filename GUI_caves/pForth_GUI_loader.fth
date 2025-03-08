@@ -246,26 +246,75 @@ SDL_PIXELFORMAT_ARGB8888 constant new_surface-format
 6 constant top_line
 7 constant close_bot_left
 
-close_bot_left 1+ constant number_of_graphics
+8 constant empty_room
+9 constant  monster_gr
+25 constant num_mon_graphics
+
+monster_gr num_mon_graphics + constant number_of_graphics
 
 number_of_graphics array gr_array
 
+255 constant MAX_FILENAME_LEN
+create c_filename_store MAX_FILENAME_LEN allot
+: filename>cstr ( addr len -- )  c_filename_store >cstr ;
+
+: _load_graphic { filename length gr-offset -- }
+    filename length filename>cstr
+    \ ." Loading: " c_filename_store ctype cr key drop
+    renderer c_filename_store IMG_LoadTexture gr-offset gr_array !
+;
+
+0 value mon_gr_count
+: load_monster ( filename -- )
+    monster_gr mon_gr_count  + _load_graphic
+    1 mon_gr_count + to mon_gr_count 
+;
+
 : load_graphics ( -- )
-    renderer S\" Graphics/mmborder.png\x00" drop IMG_LoadTexture border_whole gr_array !
+    S\" Graphics/mmborder.png"         border_whole   _load_graphic
 
-    renderer S\" Graphics/open_left.png\x00" drop IMG_LoadTexture open_left gr_array !
-    renderer S\" Graphics/open_bot.png\x00" drop IMG_LoadTexture open_bot gr_array !
-    renderer S\" Graphics/open_bot_left.png\x00" drop IMG_LoadTexture open_bot_left gr_array !
+    S\" Graphics/open_left.png"        open_left      _load_graphic
+    S\" Graphics/open_left.png"        open_left      _load_graphic
+    S\" Graphics/open_bot_left.png"    open_bot_left  _load_graphic
 
-    renderer S\" Graphics/corner_dot.png\x00" drop IMG_LoadTexture corner_dot gr_array !
-    renderer S\" Graphics/side_line.png\x00" drop IMG_LoadTexture side_line gr_array !
-    renderer S\" Graphics/top_line.png\x00" drop IMG_LoadTexture top_line gr_array !
-    renderer S\" Graphics/close_bot_left.png\x00" drop IMG_LoadTexture close_bot_left gr_array !
+    S\" Graphics/corner_dot.png"       corner_dot     _load_graphic
+    S\" Graphics/side_line.png"        side_line      _load_graphic
+    S\" Graphics/top_line.png"         top_line       _load_graphic
+    S\" Graphics/close_bot_left.png"   close_bot_left _load_graphic
+
+    S\" Graphics/empty_room.png"       empty_room     _load_graphic
+
+    S\" Graphics/kobold1.png"          load_monster
+    S\" Graphics/light_bulb.png"       load_monster
+    S\" Graphics/giant_fly.png"        load_monster
+    S\" Graphics/slime.png"            load_monster
+    S\" Graphics/super_rat.png"        load_monster
+    S\" Graphics/skeleton.png"         load_monster
+    S\" Graphics/vampire.png"          load_monster
+    S\" Graphics/purple_worm.png"      load_monster
+    S\" Graphics/demon.png"            load_monster
+    S\" Graphics/dragon.png"           load_monster
+    S\" Graphics/orc.png"              load_monster
+    S\" Graphics/bear.png"             load_monster
+    S\" Graphics/gargoyle.png"         load_monster
+    S\" Graphics/elf.png"              load_monster
+    S\" Graphics/giant_scorpion.png"   load_monster
+    S\" Graphics/troll.png"            load_monster
+    S\" Graphics/giant_snake.png"      load_monster
+    S\" Graphics/wolf.png"             load_monster
+    S\" Graphics/kobold1.png"          load_monster
+    S\" Graphics/kobold1.png"          load_monster
+    S\" Graphics/kobold1.png"          load_monster
+    S\" Graphics/kobold1.png"          load_monster
+    S\" Graphics/kobold1.png"          load_monster
+    S\" Graphics/kobold1.png"          load_monster
+    S\" Graphics/kobold1.png"          load_monster
 
     number_of_graphics 0 ?do
         I gr_array 0= if ." Error loading graphics " I . cr bye then
     loop
 ;
+
 
 : destroy_graphics ( -- )
     number_of_graphics 0 ?do
