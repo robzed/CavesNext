@@ -24,20 +24,19 @@ include speccy_emu.fth
 \ rename map - map is pForth word to view dictionary space
 : memory map ;
 
-: UNRAVEL  ( -- , show names on stack )
-    >newline ." Calling sequence:" cr
-    rp0 rp@ - cell / ." (Levels = " dup . ." )" cr
-\    2+
-   50 min 0
-\    20 0
-    ?DO  4 spaces
-        rp@ i 2+ cell* + @
-        dup code> >name ?dup
-        IF id. drop
-        ELSE .hex
-        THEN cr?
-    LOOP cr
-;
+
+\ : UNRAVEL  ( -- , show names on stack )
+\ '    >newline ." Calling sequence:" cr
+\     rp0 rp@ - cell / ." (Levels = " dup . ." )" cr
+\   50 min 0
+\    ?DO  4 spaces
+\        rp@ i 2+ cell* + @
+\        dup code> >name ?dup
+\        IF id. drop
+\        ELSE .hex
+\        THEN cr?
+\    LOOP cr
+\ ;
 
 : depth_check ( -- )
     depth 0< if 
