@@ -361,11 +361,33 @@ defer keystep
     CHAR_HEIGHT text_srcrect SDL_Rect-h u32!
 ;
 
-: graphic.draw { x y w h gr -- }
+
+: gr.draw { x y gr -- }
+    gr gr_array @ NULL NULL
+        text_destrect SDL_Rect-w
+        text_destrect SDL_Rect-h
+        SDL_QueryTexture if
+            ." Error querying texture size: " SDL_GetError ctype cr
+            16 text_destrect SDL_Rect-w u32!
+            16 text_destrect SDL_Rect-h u32!
+        then
+
+    x PIXEL_SCALE * text_destrect SDL_Rect-x u32!
+    y PIXEL_SCALE * text_destrect SDL_Rect-y u32!
+
+    text_destrect SDL_Rect-w u32@ PIXEL_SCALE * text_destrect SDL_Rect-w u32!
+    text_destrect SDL_Rect-h u32@ PIXEL_SCALE *  text_destrect SDL_Rect-h u32!
+
+    renderer gr gr_array @ NULL text_destrect SDL_RenderCopy if
+        ." Error rendering graphic: " SDL_GetError ctype cr
+    then
+;
+
+: gr.draw_size { x y w h gr -- }
     x PIXEL_SCALE * text_destrect SDL_Rect-x u32!
     y PIXEL_SCALE * text_destrect SDL_Rect-y u32!
     w PIXEL_SCALE * text_destrect SDL_Rect-w u32!
-    h PIXEL_SCALE *  text_destrect SDL_Rect-h u32!
+    h PIXEL_SCALE * text_destrect SDL_Rect-h u32!
 
     renderer gr gr_array @ NULL text_destrect SDL_RenderCopy if
         ." Error rendering graphic: " SDL_GetError ctype cr

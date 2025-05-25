@@ -663,21 +663,33 @@ create monname ," Kobold" ," Light Bulb" ," Giant Fly" ," Slime" ," Super Rat"
 
 \ hit point and 6 spells for each monster.
 create mondata 
-           1 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c,    2 c,  2 c, 0 c, 0 c, 0 c, 0 c, 0 c,
-		   3 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c,    4 c,  0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
-		  23 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c,    2 c,  0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
-		  20 c,  0 c,  0 c,  0 c,  2 c,  0 c, 0 c,    5 c,  0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
-		  50 c, 20 c,  1 c,  0 c,  0 c,  0 c, 0 c,  150 c, 10 c, 5 c, 0 c, 0 c, 0 c, 0 c,
-		  25 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c,	 30 c,  0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
-		  57 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c,
-		   9 c,  0 c,  5 c,  0 c,  0 c,  0 c, 0 c,   90 c, 10 c, 0 c, 0 c, 0 c, 0 c, 0 c,
-		 120 c,  0 c,  0 c,  8 c,  0 c,  2 c, 0 c,	 26 c,  0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
-		  10 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c,    8 c,  0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
-		 200 c, 20 c, 10 c, 10 c, 10 c, 20 c, 2 c,   10 c,  0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
-         135 c,  0 c,  0 c,  0 c,  0 c,  2 c, 0 c,	 35 c,  0 c, 0 c, 2 c, 0 c, 0 c, 0 c,
-		  18 c,  0 c,  0 c,  0 c,  0 c,  6 c, 0 c,	 15 c,  0 c, 0 c, 0 c, 0 c, 0 c, 0 c,
+    1 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ kobold_gr c,
+    2 c,  2 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ lightbulb_gr c,
+    3 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ giant_fly_gr c,
+    4 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ slime_gr c,
+   23 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ super_rat_gr c,
+    2 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ skeleton_gr c,
+   20 c,  0 c,  0 c,  0 c,  2 c,  0 c, 0 c, \ vampire_gr c,
+    5 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ purple_worm_gr c,
+   50 c, 20 c,  1 c,  0 c,  0 c,  0 c, 0 c, \ demon_gr c,
+  150 c, 10 c,  5 c,  0 c,  0 c,  0 c, 0 c, \ dragon_gr c,
+   25 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ orc_gr c,
+   30 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ bear_gr c,
+   57 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ gargoyle_gr c,
+    9 c,  0 c,  5 c,  0 c,  0 c,  0 c, 0 c, \ elf_gr c,
+   90 c, 10 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ giant_scorpion_gr c,
+  120 c,  0 c,  0 c,  8 c,  0 c,  2 c, 0 c, \ troll_gr c,
+   26 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ giant_snake_gr c,
+   10 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ wolf_gr c,
+    8 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ bat_gr c,
+  200 c, 20 c, 10 c, 10 c, 10 c, 20 c, 2 c, \ destroyer_gr c,
+   10 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ zombie_gr c,
+  135 c,  0 c,  0 c,  0 c,  0 c,  2 c, 0 c, \ hill_giant_gr c,
+   35 c,  0 c,  0 c,  2 c,  0 c,  0 c, 0 c, \ werewolf_gr c,
+   18 c,  0 c,  0 c,  0 c,  0 c,  6 c, 0 c, \ orge_gr c,
+   15 c,  0 c,  0 c,  0 c,  0 c,  0 c, 0 c, \ goblin_gr c,
 
-7  constant mdatasz
+7 constant mdatasz
 
 
 \
@@ -847,11 +859,22 @@ variable mon_hit_strength \ monster hit strength
     at_xy
 ;
 
+: drawmon
+    254 64 - 2
+    mons.hp 0 <= if
+        empty_room
+    else
+        monster_gr x @ y @ mons@ +
+    then
+    gr.draw
+;
+
 11 constant start_line
 : .view ( -- )
     start_line 1- clr_line
     .map
     .playerinfo
+    drawmon
 ;
 
 \ debug command to show the current room the player is in
