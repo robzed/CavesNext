@@ -958,10 +958,11 @@ CREATE clipRect SDL_Rect ALLOT
     depth if ." ============ WARNING Stack not empty =========" cr .s then
 ;
 
+: setup_env setup_SDL ;
 include caves130_GUI.fth
 
 : run
-    setup_SDL
+    setup_env
 
     caves_main
 

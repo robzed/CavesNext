@@ -1629,7 +1629,7 @@ create nbuff nbuff-size 1+ allot
 : test
     cr
     ." --------- TEST SETUP ---------" cr
-    setup_SDL
+    setup_env
     setmap
     \ DEBUG_ld_rooms
     \ debug.map
